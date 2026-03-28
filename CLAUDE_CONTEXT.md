@@ -1,6 +1,6 @@
 # UNNC CatRec — Claude 上手文档
 
-> 本文档由原项目对话自动生成，供迁移到新仓库后的 Claude 快速理解项目全貌。
+> 本文档记录项目全貌，供 Claude 在新对话中快速上手。
 
 ---
 
@@ -12,9 +12,9 @@
 - 上传猫咪照片 → SigLIP2 AI 识别 → 返回匹配猫咪信息
 - 地图展示校园猫咪热点
 - 猫咪名册（网格浏览所有猫）
-- 添加新猫咪（表单 + 照片上传到 NocoDB）
+- 添加新猫咪（表单 + 照片上传）
 
-未来计划迁移到微信小程序，因此前端采用移动端优先设计。
+前端采用 uni-app（Vue 3），一套代码编译到 H5 和微信小程序。`frontend/`（Next.js）为早期原型，不再维护。
 
 ---
 
@@ -107,23 +107,32 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ## 启动方式
 
-### 前端
-```bash
-cd frontend
-npm install
-npm run dev
-# 访问 http://localhost:3000
-```
-
 ### 后端
 ```bash
 cd backend
-python -m venv .venv
-source .venv/Scripts/activate  # Windows Git Bash
-# 或 .venv\Scripts\activate    # Windows CMD
 pip install -r requirements.txt
-cp .env.example .env            # 然后填写真实值
-uvicorn main:app --reload --port 8000
+# 首次运行需先构建数据库和向量库
+python build_profile.py      # 生成 data/cats.db（猫咪名册）
+python build_embeddings.py   # 生成 data/cat_profiles.pkl（识别向量库）
+# 启动服务
+python -m uvicorn main:app --reload --port 8000
+```
+
+### 前端 — H5 网页端
+```bash
+cd frontend-uniapp
+npm install
+npm run dev:h5
+# 访问 http://localhost:5173
+```
+
+### 前端 — 微信小程序
+```bash
+cd frontend-uniapp
+npm install
+npm run dev:mp-weixin
+# 用微信开发者工具打开 dist/dev/mp-weixin/
+# 需先在 src/manifest.json 的 mp-weixin.appid 填入小程序 AppID
 ```
 
 ---
