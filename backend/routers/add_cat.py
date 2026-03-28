@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from typing import Optional
 from services.nocodb_service import create_cat
-from services.siglip_service import embed_image
+from services.identify_service import embed_image
 
 router = APIRouter()
 

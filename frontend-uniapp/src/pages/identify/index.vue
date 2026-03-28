@@ -26,33 +26,42 @@
     <text v-if="error" class="error-text">{{ error }}</text>
 
     <!-- 结果 -->
-    <view v-if="result" class="result-card">
+    <view v-if="result">
       <!-- 未匹配 -->
-      <view v-if="result.no_match" class="no-match">
+      <view v-if="result.no_match" class="no-match-card">
         <text class="no-match-emoji">🤔</text>
         <text class="no-match-title">没找到匹配的猫咪</text>
-        <text class="no-match-sub">
-          置信度 {{ result.confidence !== undefined ? (result.confidence * 100).toFixed(1) : '--' }}%
-        </text>
-        <navigator url="/pages/add/index" class="btn-link">去添加这只猫</navigator>
+        <text class="no-match-sub">要不要把这只新猫加入名册？</text>
+        <navigator url="/pages/add/index" class="btn-link">去添加</navigator>
       </view>
-      <!-- 匹配成功 -->
-      <view v-else class="match">
-        <view class="match-header">
-          <text class="match-emoji">😺</text>
-          <view>
-            <text class="match-name">{{ result.match!.name }}</text>
-            <text class="match-confidence">置信度 {{ (result.match!.confidence * 100).toFixed(1) }}%</text>
+
+      <!-- 匹配结果列表 -->
+      <view v-else>
+        <text class="result-label">可能是以下猫咪：</text>
+        <view v-for="(cat, index) in result.matches" :key="index" class="result-card">
+          <view class="match-header">
+            <text class="match-rank">#{{ index + 1 }}</text>
+            <text class="match-emoji">😺</text>
+            <view class="match-info">
+              <text class="match-name">{{ cat.name }}</text>
+              <text class="match-confidence">置信度 {{ (cat.confidence * 100).toFixed(1) }}%</text>
+            </view>
+            <text v-if="cat.tnr_status" class="tnr-badge">✅ TNR</text>
           </view>
-          <text v-if="result.match!.tnr_status" class="tnr-badge">✅ TNR</text>
+          <view v-if="cat.location" class="match-location">
+            <text>📍 {{ cat.location }}</text>
+          </view>
+          <view v-if="cat.personality?.length" class="tags">
+            <text v-for="t in cat.personality" :key="t" class="tag">{{ t }}</text>
+          </view>
+          <text v-if="cat.notes" class="match-notes">{{ cat.notes }}</text>
         </view>
-        <view class="match-location">
-          <text>📍 {{ result.match!.location || '未知' }}</text>
+
+        <!-- 都不是 -->
+        <view class="not-found-row">
+          <text class="not-found-text">以上都不是？</text>
+          <navigator url="/pages/add/index" class="btn-link-small">去添加这只猫</navigator>
         </view>
-        <view v-if="result.match!.personality?.length" class="tags">
-          <text v-for="t in result.match!.personality" :key="t" class="tag">{{ t }}</text>
-        </view>
-        <text v-if="result.match!.notes" class="match-notes">{{ result.match!.notes }}</text>
       </view>
     </view>
   </view>
@@ -60,7 +69,21 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { identifyCat, type IdentifyResult } from '@/api/index'
+import { identifyCat } from '@/api/index'
+
+interface CatMatch {
+  name: string
+  confidence: number
+  location?: string
+  personality?: string[]
+  tnr_status?: boolean
+  notes?: string
+}
+
+interface IdentifyResult {
+  no_match: boolean
+  matches: CatMatch[]
+}
 
 const preview = ref<string | null>(null)
 const filePath = ref<string | null>(null)
@@ -94,7 +117,7 @@ async function identify() {
   loading.value = true
   error.value = null
   try {
-    result.value = await identifyCat(filePath.value)
+    result.value = await identifyCat(filePath.value) as IdentifyResult
   } catch (e: unknown) {
     error.value = e instanceof Error ? e.message : '识别失败，请重试'
   } finally {
@@ -125,33 +148,46 @@ async function identify() {
 }
 .btn-primary {
   margin-top: 32rpx; width: 100%; background: #F97316; color: #fff;
-  border-radius: 24rpx; font-size: 32rpx; font-weight: 600; padding: 24rpx 0;
-  border: none;
+  border-radius: 24rpx; font-size: 32rpx; font-weight: 600; padding: 24rpx 0; border: none;
 }
 .btn-primary[disabled] { opacity: 0.6; }
 .error-text { display: block; margin-top: 24rpx; color: #ef4444; font-size: 26rpx; text-align: center; }
-.result-card {
+.no-match-card {
   margin-top: 40rpx; background: #fff; border-radius: 32rpx;
-  border: 2rpx solid #FED7AA; padding: 40rpx;
+  border: 2rpx solid #FED7AA; padding: 48rpx 40rpx;
+  display: flex; flex-direction: column; align-items: center; gap: 16rpx;
 }
-.no-match { display: flex; flex-direction: column; align-items: center; gap: 12rpx; }
 .no-match-emoji { font-size: 80rpx; }
 .no-match-title { font-size: 36rpx; font-weight: 600; color: #1C1917; }
-.no-match-sub { font-size: 24rpx; color: #78716C; }
-.btn-link {
-  margin-top: 16rpx; background: #F97316; color: #fff;
-  padding: 16rpx 48rpx; border-radius: 50rpx; font-size: 28rpx;
+.no-match-sub { font-size: 26rpx; color: #78716C; }
+.result-label { display: block; margin-top: 40rpx; margin-bottom: 20rpx; font-size: 28rpx; font-weight: 600; color: #78716C; }
+.result-card {
+  background: #fff; border-radius: 28rpx; border: 2rpx solid #FED7AA;
+  padding: 32rpx; margin-bottom: 20rpx;
 }
-.match-header { display: flex; align-items: center; gap: 16rpx; margin-bottom: 20rpx; }
-.match-emoji { font-size: 56rpx; }
-.match-name { display: block; font-size: 40rpx; font-weight: 700; color: #1C1917; }
+.match-header { display: flex; align-items: center; gap: 16rpx; margin-bottom: 16rpx; }
+.match-rank { font-size: 28rpx; font-weight: 700; color: #F97316; min-width: 40rpx; }
+.match-emoji { font-size: 48rpx; }
+.match-info { flex: 1; }
+.match-name { display: block; font-size: 36rpx; font-weight: 700; color: #1C1917; }
 .match-confidence { display: block; font-size: 24rpx; color: #78716C; }
-.tnr-badge { margin-left: auto; font-size: 24rpx; color: #22c55e; }
-.match-location { font-size: 28rpx; color: #78716C; margin-bottom: 20rpx; }
-.tags { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 20rpx; }
-.tag {
-  background: #FDE8C8; color: #F97316;
-  padding: 8rpx 20rpx; border-radius: 50rpx; font-size: 24rpx; font-weight: 500;
+.tnr-badge { font-size: 22rpx; color: #22c55e; }
+.match-location { font-size: 26rpx; color: #78716C; margin-bottom: 16rpx; }
+.tags { display: flex; flex-wrap: wrap; gap: 12rpx; margin-bottom: 16rpx; }
+.tag { background: #FDE8C8; color: #F97316; padding: 8rpx 20rpx; border-radius: 50rpx; font-size: 24rpx; font-weight: 500; }
+.match-notes { font-size: 26rpx; color: #78716C; border-top: 2rpx solid #FEF3E2; padding-top: 16rpx; }
+.not-found-row {
+  margin-top: 8rpx; padding: 32rpx; background: #fff; border-radius: 28rpx;
+  border: 2rpx dashed #FED7AA;
+  display: flex; align-items: center; justify-content: space-between;
 }
-.match-notes { font-size: 26rpx; color: #78716C; border-top: 2rpx solid #FEF3E2; padding-top: 20rpx; }
+.not-found-text { font-size: 28rpx; color: #78716C; }
+.btn-link {
+  background: #F97316; color: #fff;
+  padding: 16rpx 48rpx; border-radius: 50rpx; font-size: 28rpx; display: block; text-align: center;
+}
+.btn-link-small {
+  background: #F97316; color: #fff;
+  padding: 12rpx 32rpx; border-radius: 50rpx; font-size: 26rpx;
+}
 </style>
