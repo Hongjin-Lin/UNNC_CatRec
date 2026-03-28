@@ -11,11 +11,6 @@ from routers import identify, cats, add_cat
 
 app = FastAPI(title="UNNC CatRec API", version="0.1.0")
 
-# Serve campus cat photos as static files
-_library = Path(__file__).parent.parent / "campus_cats_library"
-if _library.exists():
-    app.mount("/static/cats", StaticFiles(directory=str(_library)), name="cat_photos")
-
 origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174").split(",")
 
 app.add_middleware(
@@ -25,6 +20,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve campus cat photos as static files
+_library = Path(__file__).parent.parent / "campus_cats_library"
+if _library.exists():
+    app.mount("/static/cats", StaticFiles(directory=str(_library)), name="cat_photos")
 
 app.include_router(identify.router, prefix="/identify", tags=["identify"])
 app.include_router(cats.router, prefix="/cats", tags=["cats"])

@@ -137,8 +137,13 @@ npm run dev:h5   #前端会寻找本地localhost:8000寻找服务
 cd frontend-uniapp
 npm install
 npm run build:mp-weixin
-# 用微信开发者工具打开 dist/dev/mp-weixin/
-# 需先在 src/manifest.json 的 mp-weixin.appid 填入小程序 AppID
+
+  1. 下载并安装 https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html
+  2. 打开微信开发者工具，选择 导入项目
+  3. 项目目录选择：D:/projects/CatRec/frontend-uniapp/dist/dev/mp-weixin
+  4. 填入你的 AppID（没有的话选"测试号"）
+  5. 点击导入，即可在模拟器里预览
+
 ```
 
 ---
