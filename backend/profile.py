@@ -4,9 +4,9 @@ import requests
 from urllib.parse import urljoin
 
 # --- 配置区 ---
-JSON_FILE = 'cats.json'        # 你刚才保存的文件名
+JSON_FILE = '../cats.json'        # 你刚才保存的文件名
 BASE_URL = "http://tnr.0xnohes-l.cn:8900/"  # 基础域名
-SAVE_DIR = 'campus_cats_library'  # 图片保存的根目录
+SAVE_DIR = '../campus_cats_library'  # 图片保存的根目录
 
 # 创建根目录
 if not os.path.exists(SAVE_DIR):

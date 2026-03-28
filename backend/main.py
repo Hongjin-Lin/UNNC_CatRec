@@ -16,7 +16,7 @@ _library = Path(__file__).parent.parent / "campus_cats_library"
 if _library.exists():
     app.mount("/static/cats", StaticFiles(directory=str(_library)), name="cat_photos")
 
-origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+origins = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
 app.add_middleware(
     CORSMiddleware,
