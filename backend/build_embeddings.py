@@ -1,16 +1,17 @@
-"""Build cat_profiles.pkl from cats.json + campus_cats_library images.
+"""Build cat_profiles.pkl (embedding vector DB) from campus_cats_library images.
+
+Model: AvitoTech/DINO-v2-small-for-animal-identification (DINOv2-small fine-tuned)
+Prioritizes local model_save/ directory, falls back to HuggingFace download.
 
 Usage:
     cd backend
-    python build_profiles.py
+    python build_embeddings.py
 
 Outputs:
     data/cat_profiles.pkl
 """
 from __future__ import annotations
 
-import io
-import json
 import pickle
 import sys
 from pathlib import Path
@@ -19,30 +20,59 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).parent.parent
-CATS_JSON = ROOT / "cats.json"
 LIBRARY_DIR = ROOT / "campus_cats_library"
 OUT_PATH = Path(__file__).parent / "data" / "cat_profiles.pkl"
-MODEL_NAME = "openai/clip-vit-large-patch14"  # Using available CLIP model
+BASE_CKP = "facebook/dinov2-small"
+AVITO_REPO = "AvitoTech/DINO-v2-small-for-animal-identification"
+AVITO_FILE = "model.safetensors"
+LOCAL_MODEL_DIR = ROOT / "model_save"
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 
 def load_model():
-    from transformers import AutoProcessor, AutoModel
     import torch
+    import torch.nn as nn
+    import safetensors.torch
+    from transformers import AutoModel, AutoImageProcessor
+    from huggingface_hub import hf_hub_download
 
-    print(f"Loading model {MODEL_NAME} ...")
-    processor = AutoProcessor.from_pretrained(MODEL_NAME)
-    model = AutoModel.from_pretrained(MODEL_NAME)
-    model.eval()
+    class Model(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.backbone = AutoModel.from_pretrained(BASE_CKP)
+            self.processor = AutoImageProcessor.from_pretrained(BASE_CKP, use_fast=True)
+
+        def forward(self, images):
+            dev = next(self.parameters()).device
+            inputs = self.processor(images=images, return_tensors="pt").to(dev)
+            out = self.backbone(**inputs)
+            feats = out.last_hidden_state[:, 0, :]
+            return feats
+
+    print(f"Loading base model: {BASE_CKP}")
+    model = Model()
+
+    local_avito = LOCAL_MODEL_DIR / AVITO_FILE
+    if local_avito.exists():
+        print(f"Loading AvitoTech weights from local: {local_avito}")
+        weights_path = str(local_avito)
+    else:
+        print(f"Downloading AvitoTech weights from {AVITO_REPO} ...")
+        weights_path = hf_hub_download(repo_id=AVITO_REPO, filename=AVITO_FILE)
+
+    state_dict = safetensors.torch.load_file(weights_path)
+    model.load_state_dict(state_dict, strict=False)
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Using device: {device}")
-    model = model.to(device)
+    model = model.to(device).eval()
     print(f"Model loaded on {device}")
-    return processor, model, device
+    return model, device
 
 
-def embed_images(image_paths: list[Path], processor, model, device) -> np.ndarray:
+def embed_images(image_paths: list[Path], model, device) -> np.ndarray | None:
     """Return mean L2-normalised embedding for a list of image paths."""
     import torch
+    import torch.nn.functional as F
 
     vecs = []
     for p in image_paths:
@@ -51,75 +81,44 @@ def embed_images(image_paths: list[Path], processor, model, device) -> np.ndarra
         except Exception as e:
             print(f"  [skip] {p.name}: {e}")
             continue
-        inputs = processor(images=image, return_tensors="pt").to(device)
         with torch.no_grad():
-            features = model.get_image_features(**inputs)
-        vec = features[0].cpu().numpy()
-        vec = vec / (np.linalg.norm(vec) + 1e-8)
-        vecs.append(vec)
+            feat = model([image])
+            feat = F.normalize(feat, dim=1)
+        vecs.append(feat[0].cpu().numpy())
 
     if not vecs:
         return None
-
     mean_vec = np.mean(vecs, axis=0)
     mean_vec = mean_vec / (np.linalg.norm(mean_vec) + 1e-8)
     return mean_vec.astype(np.float32)
 
 
 def main():
-    with open(CATS_JSON, encoding="utf-8") as f:
-        cats = json.load(f)["list"]
+    cat_dirs = sorted(p for p in LIBRARY_DIR.iterdir() if p.is_dir())
+    print(f"Found {len(cat_dirs)} cat folders in {LIBRARY_DIR}")
 
-    print(f"Found {len(cats)} cats in cats.json")
-
-    processor, model, device = load_model()
+    model, device = load_model()
 
     profiles = []
     embeddings = []
     skipped = []
 
-    for cat in cats:
-        name = cat.get("Name", "").strip()
-        if not name:
-            continue
-
-        cat_dir = LIBRARY_DIR / name
-        if not cat_dir.exists():
-            print(f"[skip] No folder for '{name}'")
-            skipped.append(name)
-            continue
-
-        image_paths = sorted(
-            p for p in cat_dir.iterdir()
-            if p.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")
-        )
+    for cat_dir in cat_dirs:
+        name = cat_dir.name
+        image_paths = sorted(p for p in cat_dir.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS)
         if not image_paths:
             print(f"[skip] No images in '{name}/'")
             skipped.append(name)
             continue
 
         print(f"Processing '{name}' ({len(image_paths)} images) ...")
-        vec = embed_images(image_paths, processor, model, device)
+        vec = embed_images(image_paths, model, device)
         if vec is None:
             print(f"  [skip] All images failed for '{name}'")
             skipped.append(name)
             continue
 
-        personality = []
-        if cat.get("Is_friendly") == "是":
-            personality.append("亲人")
-        elif cat.get("Is_friendly") == "否":
-            personality.append("怕生")
-
-        profile = {
-            "name": name,
-            "location": cat.get("Discovery_location") or "",
-            "personality": personality,
-            "tnr_status": bool(cat.get("Is_neutered", False)),
-            "notes": cat.get("Description") or "",
-        }
-
-        profiles.append(profile)
+        profiles.append({"name": name})
         embeddings.append(vec)
 
     if not profiles:
