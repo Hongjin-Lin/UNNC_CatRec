@@ -1,8 +1,18 @@
 <template>
   <view class="page">
     <view class="header">
-      <text class="title">🐱 猫咪名册</text>
-      <text class="subtitle">每一只都是独特的小可爱</text>
+      <view class="header-left">
+        <text class="title">🐱 猫咪名册</text>
+        <text class="subtitle">每一只都是独特的小可爱</text>
+      </view>
+      <view class="header-right">
+        <input 
+          class="search-input" 
+          v-model="searchQuery" 
+          placeholder="🔍 搜名字" 
+          placeholder-class="search-placeholder"
+        />
+      </view>
     </view>
 
     <view v-if="loading" class="center">
@@ -14,9 +24,12 @@
     <view v-else-if="cats.length === 0" class="center">
       <text class="empty-text">还没有猫咪档案喵~</text>
     </view>
+    <view v-else-if="filteredCats.length === 0" class="center">
+      <text class="empty-text">没有找到叫“{{ searchQuery }}”的猫咪喵~</text>
+    </view>
     <view v-else class="grid">
       <view
-        v-for="cat in cats"
+        v-for="cat in filteredCats"
         :key="cat.id"
         class="card-link"
         @tap="navigateToCat(cat)"
@@ -54,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getCats, type CatProfile } from '@/api/index'
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
@@ -62,6 +75,15 @@ const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 const cats = ref<CatProfile[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+const searchQuery = ref('')
+
+const filteredCats = computed(() => {
+  if (!searchQuery.value.trim()) return cats.value
+  const query = searchQuery.value.trim().toLowerCase()
+  return cats.value.filter(cat => 
+    cat.Name && cat.Name.toLowerCase().includes(query)
+  )
+})
 
 function traits(personality: string): string[] {
   return personality ? personality.split(',').filter(Boolean).slice(0, 3) : []
@@ -105,7 +127,37 @@ onMounted(async () => {
 }
 
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 40rpx;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  width: 240rpx;
+}
+
+.search-input {
+  background: white;
+  border: 2rpx solid #FED7AA;
+  border-radius: 30rpx;
+  padding: 10rpx 24rpx;
+  font-size: 26rpx;
+  color: #1C1917;
+  text-align: right;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: #F97316;
+}
+
+.search-placeholder {
+  color: #D8BFD8;
 }
 
 .title {
