@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CatProfile",
+  "type": "object",
+  "required": ["id", "name", "location", "tnr_status"],
+  "properties": {
+    "id": { "type": "string", "description": "Unique identifier" },
+    "name": { "type": "string" },
+    "location": { "type": "string", "description": "Location tag e.g. #23" },
+    "personality": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Traits e.g. aggressive, friendly, shy"
+    },
+    "tnr_status": { "type": "boolean", "description": "Trap-Neuter-Return done" },
+    "image_url": { "type": "string", "format": "uri" },
+    "embedding_id": { "type": "string", "description": "Reference key into cat_profiles.pkl" },
+    "notes": { "type": "string" }
+  }
+}

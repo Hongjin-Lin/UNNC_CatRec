@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #FFF8F0;
+  --card: #FFFFFF;
+  --border: #FED7AA;
+  --brand: #F97316;
+  --brand-light: #FDBA74;
+  --text: #1C1917;
+  --text-soft: #78716C;
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
