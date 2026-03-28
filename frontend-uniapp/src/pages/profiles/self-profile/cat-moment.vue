@@ -99,7 +99,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 
 interface Moment {
   id: string
@@ -163,6 +164,7 @@ function getRandomComments(count: number = 2) {
 
 function imgUrl(url: string): string {
   if (!url) return ''
+  try { url = encodeURI(decodeURI(url)) } catch(e) {}
   // 如果已经是完整URL，直接返回
   if (url.startsWith('http')) return url
   // 如果是相对路径，补上BASE前缀
@@ -221,10 +223,11 @@ function extractParamsFromUrl(): { catId: string; catName: string } {
 // 检查图片是否存在（通过Promise）
 function checkImageExists(url: string): Promise<boolean> {
   return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(true)
-    img.onerror = () => resolve(false)
-    img.src = url
+      uni.getImageInfo({
+        src: url,
+        success: () => resolve(true),
+        fail: () => resolve(false)
+      })
   })
 }
 
@@ -367,15 +370,16 @@ function getRandomPhotoCaption(catName: string): string {
   return captions[Math.floor(Math.random() * captions.length)]
 }
 
-onMounted(() => {
-  console.log('cat-moment 页面加载')
-  
-  // 从URL提取参数
-  const params = extractParamsFromUrl()
-  console.log('提取到的参数:', params)
-  
-  catId.value = params.catId
-  catName.value = params.catName
+onLoad((options: any) => {
+    console.log('cat-moment 页面加载')
+
+    const id = options?.catId || ''
+    const name = options?.catName ? decodeURIComponent(options.catName) : '这只猫咪'
+    
+    console.log('提取到的参数:', { id, name })
+
+    catId.value = id
+    catName.value = name
   
   // 如果有catId，尝试获取数据
   if (catId.value) {

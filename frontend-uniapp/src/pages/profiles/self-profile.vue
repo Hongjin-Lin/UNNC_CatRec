@@ -108,7 +108,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import { getCats, type CatProfile } from '@/api/index'
 
 interface Cat {
@@ -145,8 +146,7 @@ function traits(personality: string): string[] {
 
 function imgUrl(url: string): string {
   if (!url) return ''
-  if (url.startsWith('http')) return url
-  return `${BASE}${url}`
+    try { url = encodeURI(decodeURI(url)) } catch(e) {}
 }
 
 function goBack() {
@@ -160,10 +160,12 @@ function toggleFollow() {
 // 检查图片是否存在
 function checkImageExists(url: string): Promise<boolean> {
   return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => resolve(true)
-    img.onerror = () => resolve(false)
-    img.src = url
+      // 兼容微信小程序，不能使用 new Image() DOM API
+      uni.getImageInfo({
+        src: url,
+        success: () => resolve(true),
+        fail: () => resolve(false)
+      })
   })
 }
 
@@ -206,75 +208,51 @@ function navigateToMoments() {
   })
 }
 
-// 从URL中获取catId参数（uni-app H5 hash路由）
-function extractCatIdFromUrl(): { catId: string; catName: string } {
-  // uni-app H5模式下，URL格式为: /#/pages/profiles/self-profile?catId=1&catName=xxx
-  if (typeof window === 'undefined') return { catId: '', catName: '' }
-  
-  const hash = window.location.hash
-  currentUrl.value = hash
-  console.log('=== extractCatIdFromUrl ===')
-  console.log('完整hash:', hash)
-  
-  const questionIndex = hash.indexOf('?')
-  console.log('? 的位置:', questionIndex)
-  
-  if (questionIndex === -1) {
-    console.log('没有找到 ?，无参数')
-    return { catId: '', catName: '' }
-  }
-  
-  const queryString = hash.substring(questionIndex + 1)
-  console.log('查询字符串:', queryString)
-  
-  const params = new URLSearchParams(queryString)
-  const id = params.get('catId') || ''
-  const name = params.get('catName') || ''
-  
-  console.log('提取结果 - catId:', id, 'catName:', name)
-  
-  debugCatId.value = id
-  debugCatName.value = decodeURIComponent(name)
-  
-  return { catId: id, catName: decodeURIComponent(name) }
-}
-
 // 从后端获取猫咪数据
-async function fetchCatData() {
-  try {
-    const data = await getCats()
-    const found = data.find((c: Cat) => c.id === catId.value)
-    if (found) {
-      cat.value = found
-      // 加载该猫咪的预览图片
-      await loadMomentPhotos(found.Name)
-    } else {
+  async function fetchCatData() {
+    try {
+      const data = await getCats()
+      const found = data.find((c: Cat) => String(c.id) === String(catId.value))
+      if (found) {
+        cat.value = found
+        // 加载该猫咪的预览图片
+        await loadMomentPhotos(found.Name)
+      } else {
+        momentPhotos.value = []
+      }
+      // 即使找不到也允许显示占位内容
+    } catch (error) {
+      console.error('获取猫咪数据失败:', error)
       momentPhotos.value = []
+      // 获取失败也允许页面显示
     }
-    // 即使找不到也允许显示占位内容
-  } catch (error) {
-    console.error('获取猫咪数据失败:', error)
-    momentPhotos.value = []
-    // 获取失败也允许页面显示
   }
-}
 
-onMounted(() => {
-  // 在onMounted中获取参数
-  const { catId: id, catName: name } = extractCatIdFromUrl()
-  console.log('提取到的参数:', { id, name })
-  
-  if (!id) {
-    // 如果没有id，也允许页面显示（显示占位内容）
-    console.log('没有catId，显示占位UI')
-    momentPhotos.value = []  // 清空预览图片
-    loading.value = false
-    return
-  }
-  
-  catId.value = id
-  
-  // 获取猫咪详细信息
+  onLoad((options: any) => {
+      console.log('--- onLoad 触发 ---')
+      console.log('完整的 options:', JSON.stringify(options))
+      
+      // 兼容可能被映射到组件 props 或者其他格式的参数
+      let id = options?.catId || options?.id || ''
+      let name = options?.catName || options?.name || ''
+      
+      if (name) {
+        name = decodeURIComponent(name)
+      }
+
+      console.log('最终解析结果 -> id:', id, 'name:', name)
+    debugCatId.value = id
+    debugCatName.value = name
+
+    if (!id) {
+      console.log('没有catId，显示占位UI')
+      momentPhotos.value = []
+      loading.value = false
+      return
+    }
+
+    catId.value = id
+
   fetchCatData().finally(() => {
     loading.value = false
   })
