@@ -146,7 +146,9 @@ function traits(personality: string): string[] {
 
 function imgUrl(url: string): string {
   if (!url) return ''
-    try { url = encodeURI(decodeURI(url)) } catch(e) {}
+  // 移除本地强制 encodeURI，微信底层的网络请求自动且仅进行一次安全的编码
+  if (url.startsWith('http')) return url
+  return `${BASE}${url}`
 }
 
 function goBack() {
@@ -164,7 +166,10 @@ function checkImageExists(url: string): Promise<boolean> {
       uni.getImageInfo({
         src: url,
         success: () => resolve(true),
-        fail: () => resolve(false)
+        fail: (err) => {
+          console.log(`getImageInfo failed for ${url}:`, err);
+          resolve(false);
+        }
       })
   })
 }

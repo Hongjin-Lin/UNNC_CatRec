@@ -164,7 +164,7 @@ function getRandomComments(count: number = 2) {
 
 function imgUrl(url: string): string {
   if (!url) return ''
-  try { url = encodeURI(decodeURI(url)) } catch(e) {}
+  // 移除强制 encodeURI，避免双重转义导致 %25E9 等 404 错误
   // 如果已经是完整URL，直接返回
   if (url.startsWith('http')) return url
   // 如果是相对路径，补上BASE前缀

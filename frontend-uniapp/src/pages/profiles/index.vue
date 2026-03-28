@@ -69,7 +69,7 @@ function traits(personality: string): string[] {
 
 function imgUrl(url: string): string {
   if (!url) return ''
-  try { url = encodeURI(decodeURI(url)) } catch(e) {}
+  // 移除强制 encodeURI
   if (url.startsWith('http')) return url
   return `${BASE}${url}`
 }
