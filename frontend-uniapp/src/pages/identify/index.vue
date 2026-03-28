@@ -38,7 +38,7 @@
       <!-- 匹配结果列表 -->
       <view v-else>
         <text class="result-label">可能是以下猫咪：</text>
-        <view v-for="(cat, index) in result.matches" :key="index" class="result-card">
+        <view v-for="(cat, index) in result.matches" :key="index" class="result-card" @tap="navigateToCat(cat)">
           <view class="match-header">
             <text class="match-rank">#{{ index + 1 }}</text>
             <text class="match-emoji">😺</text>
@@ -72,6 +72,7 @@ import { ref } from 'vue'
 import { identifyCat } from '@/api/index'
 
 interface CatMatch {
+  id?: string
   name: string
   confidence: number
   location?: string
@@ -110,6 +111,20 @@ function reset() {
   filePath.value = null
   result.value = null
   error.value = null
+}
+
+function navigateToCat(cat: CatMatch) {
+  if (!cat.id) {
+    console.error('Error: cat ID is missing, cannot navigate to profile.')
+    return
+  }
+  const navUrl = `/pages/profiles/self-profile?catId=${cat.id}&catName=${encodeURIComponent(cat.name)}`
+  uni.navigateTo({
+    url: navUrl,
+    fail: (err) => {
+      console.error('导航失败:', err)
+    }
+  })
 }
 
 async function identify() {
@@ -164,6 +179,11 @@ async function identify() {
 .result-card {
   background: #fff; border-radius: 28rpx; border: 2rpx solid #FED7AA;
   padding: 32rpx; margin-bottom: 20rpx;
+  transition: all 0.2s ease;
+}
+.result-card:active {
+  transform: scale(0.98);
+  background: #FEF3E2;
 }
 .match-header { display: flex; align-items: center; gap: 16rpx; margin-bottom: 16rpx; }
 .match-rank { font-size: 28rpx; font-weight: 700; color: #F97316; min-width: 40rpx; }
