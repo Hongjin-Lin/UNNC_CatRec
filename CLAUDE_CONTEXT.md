@@ -33,11 +33,17 @@
 ## 项目结构
 
 ```
-AICatRec/
-├── .gitignore                  # 忽略模型权重、pkl、.env
-├── CLAUDE_CONTEXT.md           # 本文件
+CatRec/
+├── .gitignore
+├── README.md
+├── claude_context.md           # 本文件
+├── cat_registry.pt             # CatRec.py 原型用的 torch 注册档案
+├── cats.json                   # 从 NocoDB 导出的原始猫咪数据
 ├── backend/
 │   ├── main.py                 # FastAPI app 入口，CORS 配置
+│   ├── CatRec.py               # 早期原型 CatRecognizer 类（注册/识别/is_same_cat）
+│   ├── download.py             # 从 cats.json 批量下载猫咪照片到 campus_cats_library/
+│   ├── profile.py              # 下载 SigLIP2 模型到 model_save/（hf-mirror）
 │   ├── requirements.txt        # Python 依赖
 │   ├── .env.example            # 环境变量模板
 │   ├── data/                   # (gitignored) cat_profiles.pkl 放这里
@@ -45,16 +51,12 @@ AICatRec/
 │   │   ├── identify.py         # POST /identify — 图片识别
 │   │   ├── cats.py             # GET /cats, GET /cats/map-data
 │   │   └── add_cat.py          # POST /cats/add — 添加新猫
-│   └── services/
-│       ├── siglip_service.py   # SigLIP2 推理 + pkl 向量匹配
-│       └── nocodb_service.py   # NocoDB REST API 客户端
-├── frontend/
-│   ├── package.json
-│   ├── next.config.js
-│   ├── tsconfig.json
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   ├── .env.local              # NEXT_PUBLIC_API_URL=http://localhost:8000
+│   ├── services/
+│   │   ├── siglip_service.py   # SigLIP2 推理 + pkl 向量匹配
+│   │   └── nocodb_service.py   # NocoDB REST API 客户端
+│   └── shared/
+│       └── cats_schema.json    # 猫咪数据结构 JSON Schema
+├── frontend/                   # Next.js 14 前端（已构建，.next/ 存在）
 │   ├── app/
 │   │   ├── layout.tsx          # 全局布局 + 底部导航栏
 │   │   ├── globals.css         # Tailwind + 设计 token CSS 变量
@@ -67,10 +69,21 @@ AICatRec/
 │   │   ├── CatCard.tsx         # 猫咪卡片（用于网格）
 │   │   ├── MapView.tsx         # Leaflet 地图（client-only dynamic import）
 │   │   └── LoadingSpinner.tsx  # 通用加载动画
-│   └── lib/
-│       └── api.ts              # 所有后端请求封装 + TypeScript 类型
-└── shared/
-    └── cats_schema.json        # 猫咪数据结构 JSON Schema（文档用途）
+│   ├── lib/
+│   │   └── api.ts              # 所有后端请求封装 + TypeScript 类型
+│   ├── package.json
+│   ├── next.config.js
+│   ├── tailwind.config.js
+│   ├── tsconfig.json
+│   └── .env.local              # NEXT_PUBLIC_API_URL=http://localhost:8000
+├── images/                     # CatRec.py 原型训练用图（卷卷/橙子/粑粑柑/黄苹果）
+├── model_save/                 # 下载的 SigLIP2 模型权重（safetensors，约 3GB）
+└── campus_cats_library/        # 从 NocoDB 下载的完整猫咪照片库（按猫名分文件夹）
+    ├── 卷卷/
+    ├── 井盖/
+    ├── 二胖/
+    ├── 墨墨-竖竖/
+    └── ...
 ```
 
 ---
