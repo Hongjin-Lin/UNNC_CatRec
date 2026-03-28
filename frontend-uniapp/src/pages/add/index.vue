@@ -103,6 +103,19 @@
             placeholder-class="placeholder"
           />
         </view>
+        <view class="field">
+          <text class="label">
+            <text class="required">*</text> 管理员密码
+          </text>
+          <input
+            class="input"
+            password
+            v-model="adminPassword"
+            placeholder="请输入管理员密码"
+            placeholder-class="placeholder"
+          />
+        </view>
+
       </view>
 
       <!-- 提交按钮 -->
@@ -122,6 +135,7 @@ import { addCat } from '@/api/index'
 export default {
   data() {
     return {
+      adminPassword: '',
       filePath: '',
       form: {
         name: '',
@@ -144,6 +158,11 @@ export default {
       })
     },
     async submit() {
+      if (this.adminPassword !== 'UNNC2026') {
+        uni.showToast({ title: '管理员密码错误', icon: 'error' })
+        return
+      }
+
       if (!this.form.name) {
         uni.showToast({ title: '请填写猫咪名字', icon: 'none' })
         return
