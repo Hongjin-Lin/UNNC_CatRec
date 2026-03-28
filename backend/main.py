@@ -5,9 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
-from routers import identify, cats, add_cat
-
 load_dotenv()
+
+from routers import identify, cats, add_cat
 
 app = FastAPI(title="UNNC CatRec API", version="0.1.0")
 

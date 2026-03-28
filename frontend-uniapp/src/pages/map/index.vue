@@ -31,7 +31,7 @@
 import { ref, onMounted } from 'vue'
 import { getMapData, type Hotspot } from '@/api/index'
 
-const center = { lat: 31.8315, lng: 121.6832 }
+const center = { lat: 29.80002, lng: 121.56351 }
 const hotspots = ref<Hotspot[]>([])
 const error = ref<string | null>(null)
 
