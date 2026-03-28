@@ -22,9 +22,9 @@
 
 | 层 | 技术 |
 |---|---|
-| 前端 | Next.js 14 (App Router) + Tailwind CSS + Lucide Icons + Leaflet.js |
+| 前端 | Vue 3 + uni-app + Vite |
 | 后端 | FastAPI + Uvicorn (Python) |
-| AI | SigLIP2-Giant (`google/siglip2-giant-patch16-384`) via HuggingFace transformers |
+| AI | DINO-v2 (`nateraw/dino-v2-small-for-animal-identification`) via HuggingFace transformers |
 | 数据库 | NocoDB (REST API) |
 | 向量库 | 本地 `backend/data/cat_profiles.pkl` |
 
@@ -56,26 +56,26 @@ CatRec/
 │   │   └── nocodb_service.py   # NocoDB REST API 客户端
 │   └── shared/
 │       └── cats_schema.json    # 猫咪数据结构 JSON Schema
-├── frontend/                   # Next.js 14 前端（已构建，.next/ 存在）
-│   ├── app/
-│   │   ├── layout.tsx          # 全局布局 + 底部导航栏
-│   │   ├── globals.css         # Tailwind + 设计 token CSS 变量
-│   │   ├── page.tsx            # / 识别页
-│   │   ├── profiles/page.tsx   # /profiles 猫册页
-│   │   ├── map/page.tsx        # /map 地图页
-│   │   └── add/page.tsx        # /add 添加猫咪页
-│   ├── components/
-│   │   ├── NavBar.tsx          # 底部四标签导航
-│   │   ├── CatCard.tsx         # 猫咪卡片（用于网格）
-│   │   ├── MapView.tsx         # Leaflet 地图（client-only dynamic import）
-│   │   └── LoadingSpinner.tsx  # 通用加载动画
-│   ├── lib/
-│   │   └── api.ts              # 所有后端请求封装 + TypeScript 类型
+├── frontend-uniapp/            # uni-app 前端（支持微信小程序和 H5）
+│   ├── src/
+│   │   ├── api/
+│   │   │   └── index.ts        # 后端请求封装 + TypeScript 类型
+│   │   ├── pages/
+│   │   │   ├── index/index.vue       # / 识别页
+│   │   │   ├── profiles/index.vue    # /profiles 猫册页
+│   │   │   ├── map/index.vue         # /map 地图页
+│   │   │   └── add/index.vue         # /add 添加猫咪页
+│   │   ├── static/             # 静态资源
+│   │   ├── App.vue             # 全局应用入口
+│   │   ├── main.ts             # Vue 实例挂载
+│   │   ├── manifest.json       # uni-app 和微信小程序配置文件
+│   │   ├── pages.json          # 路由配置 + 底部 TabBar 导航
+│   │   └── uni.scss            # 样式变量
 │   ├── package.json
-│   ├── next.config.js
-│   ├── tailwind.config.js
+│   ├── vite.config.ts
 │   ├── tsconfig.json
-│   └── .env.local              # NEXT_PUBLIC_API_URL=http://localhost:8000
+│   ├── .env                    # VITE_API_URL 生产环境
+│   └── .env.development        # VITE_API_URL=http://localhost:8000 
 ├── images/                     # CatRec.py 原型训练用图（卷卷/橙子/粑粑柑/黄苹果）
 ├── model_save/                 # 下载的 SigLIP2 模型权重（safetensors，约 3GB）
 └── campus_cats_library/        # 从 NocoDB 下载的完整猫咪照片库（按猫名分文件夹）
@@ -98,9 +98,13 @@ NOCODB_TABLE_ID=你的表ID
 CORS_ORIGINS=http://localhost:3000
 ```
 
-### 前端 `frontend/.env.local`
+### 前端 `frontend-uniapp/.env.development`
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
+VITE_API_URL=http://localhost:8000
+```
+### 前端 `frontend-uniapp/.env`
+```env
+VITE_API_URL=https://catrec.thirtysixstudio.net
 ```
 
 ---
@@ -171,27 +175,26 @@ image       file    图片文件
 ## 核心模块说明
 
 ### `backend/services/siglip_service.py`
-- 懒加载 SigLIP2-Giant 模型（首次调用时从 HuggingFace 下载，约 3GB）
+- 懒加载 DINO-v2 模型（首次调用时从 HuggingFace 下载）
 - `embed_image(bytes)` → L2 归一化的向量 (numpy)
-- `find_best_match(bytes)` → 与 `cat_profiles.pkl` 做余弦相似度比较，阈值 0.70
+- `find_best_match(bytes)` → 与 `cat_profiles.pkl` 做余弦相似度比较，阈值 0.50 左右
 - pkl 格式：`{"profiles": [dict, ...], "embeddings": [[float, ...], ...]}`
 - pkl 路径：`backend/data/cat_profiles.pkl`（被 .gitignore 忽略）
 
-### `backend/services/nocodb_service.py`
-- 使用 NocoDB v1 API：`/api/v1/db/data/noco/{TABLE_ID}`
-- 认证头：`xc-auth: {API_TOKEN}`
-- 位置标签 → GPS 坐标硬编码在 `LOCATION_COORDS` 字典中，目前有 `#23`, `#01`, `#05`
-- 新增位置时在该字典添加即可
+### `backend/routers/cats.py`
+- MAP_DATA 直接访问 `data/cats.db` 缓存而不是访问 NOCDB 云端。
+- 位置标签 → GPS 坐标硬编码分布在 `LOCATION_COORDS` 字典中
+- 新增位置时在该字典中按地点关键字添加即可
 
-### `frontend/lib/api.ts`
-- 所有请求统一走 `NEXT_PUBLIC_API_URL`
+### `frontend/src/api/index.ts`
+- 所有请求统一走 `VITE_API_URL`
 - 导出类型：`CatProfile`, `Hotspot`, `IdentifyResult`
 - 导出函数：`identifyCat()`, `getCats()`, `getMapData()`, `addCat()`
 
-### `frontend/components/MapView.tsx`
-- Leaflet 地图，必须通过 `dynamic(() => import(...), { ssr: false })` 加载
-- 地图中心：UNNC 校园 `[31.8315, 121.6832]`，zoom 16
-- 热点用 `CircleMarker` 表示，半径随猫数量增大
+### `frontend/src/pages/map/index.vue`
+- 原生地图组件 `<map>` 支持微信小程序
+- 地图中心：UNNC 校园 `[29.80002, 121.56351]`，zoom 16
+- 热点用 `<map>` Marker 渲染
 
 ---
 
@@ -234,7 +237,7 @@ image       file    图片文件
 ## 已知限制 / 待完善
 
 1. **NocoDB API 版本**：代码用 v1 API（`xc-auth` 头）。若用新版 NocoDB（v2），需改为 `xc-token` 头，路径改为 `/api/v2/tables/{tableId}/records`。
-2. **cat_profiles.pkl 需手动维护**：添加新猫后需重新生成 pkl（嵌入向量库），目前没有自动化脚本。
-3. **地图位置硬编码**：`LOCATION_COORDS` 在 `nocodb_service.py` 里，新增位置要手动加。
-4. **无鉴权**：所有 API 均公开，Hackathon 阶段够用。
+2. **cat_profiles.pkl 需手动维护**：添加新猫后需重新生成 pkl（调用 `build_embeddings.py`），目前没有自动化脚本。
+3. **地图位置硬编码**：`LOCATION_COORDS` 在 `backend/routers/cats.py` 里，新地址或不确定的地址标签需要加映射关键字。
+4. **添加猫咪鉴权**：只进行简单前端验证限制（`UNNC2026` 后门）。
 5. **图片存储**：图片上传到 NocoDB attachment，不是独立对象存储。
