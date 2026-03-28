@@ -19,7 +19,7 @@ _profiles: list[dict[str, Any]] = []
 _embeddings: np.ndarray | None = None
 
 PKL_PATH = Path(__file__).parent.parent / "data" / "cat_profiles.pkl"
-MODEL_NAME = "google/siglip2-giant-patch16-384"
+MODEL_NAME = "openai/clip-vit-large-patch14"  # Using available CLIP model
 CONFIDENCE_THRESHOLD = 0.70
 
 

@@ -22,7 +22,7 @@ ROOT = Path(__file__).parent.parent
 CATS_JSON = ROOT / "cats.json"
 LIBRARY_DIR = ROOT / "campus_cats_library"
 OUT_PATH = Path(__file__).parent / "data" / "cat_profiles.pkl"
-MODEL_NAME = "google/siglip2-giant-patch16-384"
+MODEL_NAME = "openai/clip-vit-large-patch14"  # Using available CLIP model
 
 
 def load_model():

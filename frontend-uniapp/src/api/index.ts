@@ -1,5 +1,8 @@
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
+console.log('[API] BASE URL configured as:', BASE)
+console.log('[API] import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL)
+
 export interface CatProfile {
   id: string
   Name: string
@@ -32,18 +35,25 @@ export interface IdentifyResult {
 
 function request<T>(path: string, options?: UniApp.RequestOptions): Promise<T> {
   return new Promise((resolve, reject) => {
+    const url = `${BASE}${path}`
+    console.log('[API] 发送请求:', url)
     uni.request({
-      url: `${BASE}${path}`,
+      url: url,
       method: 'GET',
+      timeout: 10000,
       ...options,
       success: (res) => {
+        console.log('[API] 请求成功:', path, res.statusCode)
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data as T)
         } else {
           reject(new Error(`HTTP ${res.statusCode}`))
         }
       },
-      fail: (err) => reject(new Error(err.errMsg)),
+      fail: (err) => {
+        console.error('[API] 请求失败:', path, err)
+        reject(new Error(err.errMsg))
+      },
     })
   })
 }
