@@ -127,7 +127,8 @@ python -m uvicorn main:app --reload --port 8000
 ```bash
 cd frontend-uniapp
 npm install
-npm run dev:h5
+npm run dev:h5   #前端会寻找本地localhost:8000寻找服务
+# npm run build:h5 #执行这行代码则前端从 VITE_API_URL=https://catrec.thirtysixstudio.net 寻找服务，前提是在frontend-uniapp文件夹下存在.env 文件指定上述网址
 # 访问 http://localhost:5173
 ```
 
@@ -135,7 +136,7 @@ npm run dev:h5
 ```bash
 cd frontend-uniapp
 npm install
-npm run dev:mp-weixin
+npm run build:mp-weixin
 # 用微信开发者工具打开 dist/dev/mp-weixin/
 # 需先在 src/manifest.json 的 mp-weixin.appid 填入小程序 AppID
 ```
