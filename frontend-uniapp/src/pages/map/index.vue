@@ -1,7 +1,7 @@
 <template>
   <view class="page">
     <view class="header">
-      <text class="title">校园地图</text>
+      <text class="title">🗺️ 校园地图</text>
       <text class="subtitle">猫咪出没热点</text>
     </view>
     <map
@@ -15,7 +15,10 @@
     <view class="hotspot-list">
       <view v-for="h in hotspots" :key="h.tag" class="hotspot-item">
         <view class="hotspot-tag">{{ h.tag }}</view>
-        <text class="hotspot-cats">{{ h.cats.join('、') }}</text>
+        <text class="hotspot-cats">🐱 {{ h.cats.join('、') }}</text>
+        <text v-if="h.lat && h.lng" class="hotspot-coords">
+          📍 {{ h.lat.toFixed(4) }}, {{ h.lng.toFixed(4) }}
+        </text>
       </view>
     </view>
     <view v-if="error" class="center">
@@ -59,7 +62,7 @@ onMounted(async () => {
           content: `${h.tag} (${h.cats.length}只)`,
           color: '#1C1917',
           fontSize: 12,
-          bgColor: '#FEF3E2',
+          bgColor: '#B7C9C0',
           padding: 5,
           borderRadius: 4,
         },
@@ -73,19 +76,85 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page { background: #FFF8F0; min-height: 100vh; }
-.header { padding: 40rpx 32rpx 24rpx; }
-.title { display: block; font-size: 48rpx; font-weight: 700; color: #1C1917; }
-.subtitle { display: block; font-size: 26rpx; color: #78716C; margin-top: 8rpx; }
-.map { width: 100%; height: 520rpx; }
-.hotspot-list { padding: 24rpx 32rpx 120rpx; }
-.hotspot-item {
-  background: #fff; border-radius: 20rpx; border: 2rpx solid #FED7AA;
-  padding: 24rpx; margin-bottom: 16rpx;
-  display: flex; flex-direction: column; gap: 8rpx;
+.page {
+  background: #FFF8DC;
+  min-height: 100vh;
 }
-.hotspot-tag { font-size: 28rpx; font-weight: 600; color: #F97316; }
-.hotspot-cats { font-size: 26rpx; color: #78716C; }
-.center { display: flex; justify-content: center; padding: 40rpx; }
-.error-text { color: #ef4444; font-size: 26rpx; }
+
+.header {
+  padding: 40rpx 24rpx 24rpx;
+}
+
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #1C1917;
+  letter-spacing: 1rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 26rpx;
+  color: #D8BFD8;
+  margin-top: 8rpx;
+  font-weight: 500;
+}
+
+.map {
+  width: 100%;
+  height: 480rpx;
+}
+
+.hotspot-list {
+  padding: 24rpx 24rpx 120rpx;
+}
+
+.hotspot-item {
+  background: white;
+  border-radius: 16rpx;
+  border: 1rpx solid #F4A460;
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  transition: all 0.2s;
+}
+
+.hotspot-item:active {
+  background: #FFF8DC;
+  border-color: #B7C9C0;
+}
+
+.hotspot-tag {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1C1917;
+}
+
+.hotspot-cats {
+  font-size: 26rpx;
+  color: #7A8A80;
+  line-height: 1.5;
+}
+
+.hotspot-coords {
+  font-size: 22rpx;
+  color: #D8BFD8;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40rpx;
+  min-height: 40vh;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 26rpx;
+  font-weight: 600;
+}
 </style>

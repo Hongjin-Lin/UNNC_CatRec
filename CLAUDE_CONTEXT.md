@@ -112,6 +112,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 cd backend
 pip install -r requirements.txt
 # 首次运行需先构建数据库和向量库
+python profile.py            # 下载猫咪图片
 python build_profile.py      # 生成 data/cats.db（猫咪名册）
 python build_embeddings.py   # 生成 data/cat_profiles.pkl（识别向量库）
 # 启动服务

@@ -14,36 +14,46 @@
 
 /* 颜色变量 */
 
-/* CatRec 主题色 */
-$brand: #F97316;
-$brand-light: #FDBA74;
-$cream-50: #FFF8F0;
+/* 喵友圈圈 - 品牌色彩系统 */
+$primary-bg: #FFF8DC;          // 奶油黄 - 主背景
+$primary-action: #B7C9C0;       // 淡蓝绿 - 功能/图标
+$secondary-text: #D8BFD8;       // 薰衣草紫 - 辅助/情绪
+$divider-bg: #F4A460;           // 柔和粉 - 分割线/标签背景
+$focus-color: #F0C350;          // 圆眼睛金 - 核心焦点
+$text-gray: #7A8A80;            // 偏蓝绿深灰 - 正文文字
+$text-primary: #1C1917;         // 深灰 - 标题文字
+
+/* CatRec 主题色（已沿用） */
+$brand: #F0C350;
+$brand-light: #F4A460;
+$cream-50: #FFF8DC;
 $cream-100: #FEF3E2;
 $cream-200: #FDE8C8;
 $text: #1C1917;
-$text-soft: #78716C;
+$text-soft: #7A8A80;
 
 /* 行为相关颜色 */
-$uni-color-primary: #F97316;
+$uni-color-primary: #F0C350;
 $uni-color-success: #4cd964;
 $uni-color-warning: #f0ad4e;
 $uni-color-error: #dd524d;
 
 /* 文字基本颜色 */
-$uni-text-color: #333; // 基本色
-$uni-text-color-inverse: #fff; // 反色
-$uni-text-color-grey: #999; // 辅助灰色，如加载更多的提示信息
-$uni-text-color-placeholder: #808080;
-$uni-text-color-disable: #c0c0c0;
+$uni-text-color: #1C1917;       // 基本色
+$uni-text-color-inverse: #fff;   // 反色
+$uni-text-color-grey: #7A8A80;  // 辅助灰色
+$uni-text-color-placeholder: #D8BFD8;
+$uni-text-color-disable: #D8BFD8;
 
 /* 背景颜色 */
 $uni-bg-color: #fff;
-$uni-bg-color-grey: #f8f8f8;
-$uni-bg-color-hover: #f1f1f1; // 点击状态颜色
+$uni-bg-color-grey: #FFF8DC;
+$uni-bg-color-hover: #FEF3E2;   // 点击状态颜色
 $uni-bg-color-mask: rgba(0, 0, 0, 0.4); // 遮罩颜色
 
 /* 边框颜色 */
-$uni-border-color: #c8c7cc;
+$uni-border-color: #F4A460;
+
 
 /* 尺寸变量 */
 

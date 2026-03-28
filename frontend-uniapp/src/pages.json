@@ -9,6 +9,14 @@
 			"style": { "navigationBarTitleText": "猫咪名册" }
 		},
 		{
+			"path": "pages/profiles/self-profile",
+			"style": { "navigationBarTitleText": "猫咪详情" }
+		},
+		{
+			"path": "pages/profiles/self-profile/cat-moment",
+			"style": { "navigationBarTitleText": "喵友圈" }
+		},
+		{
 			"path": "pages/map/index",
 			"style": { "navigationBarTitleText": "校园地图" }
 		},
@@ -19,39 +27,31 @@
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "UNNC CatRec",
-		"navigationBarBackgroundColor": "#FFF8F0",
-		"backgroundColor": "#FFF8F0"
+		"navigationBarTitleText": "喵友圈圈",
+		"navigationBarBackgroundColor": "#FFF8DC",
+		"backgroundColor": "#FFF8DC"
 	},
 	"tabBar": {
-		"color": "#78716C",
-		"selectedColor": "#F97316",
+		"color": "#7A8A80",
+		"selectedColor": "#F0C350",
 		"backgroundColor": "#FFFFFF",
 		"borderStyle": "white",
 		"list": [
 			{
 				"pagePath": "pages/identify/index",
-				"text": "识别",
-				"iconPath": "static/tab/identify.png",
-				"selectedIconPath": "static/tab/identify-active.png"
+				"text": "🔍 识别"
 			},
 			{
 				"pagePath": "pages/profiles/index",
-				"text": "猫册",
-				"iconPath": "static/tab/profiles.png",
-				"selectedIconPath": "static/tab/profiles-active.png"
+				"text": "📚 猫册"
 			},
 			{
 				"pagePath": "pages/map/index",
-				"text": "地图",
-				"iconPath": "static/tab/map.png",
-				"selectedIconPath": "static/tab/map-active.png"
+				"text": "🗺️ 地图"
 			},
 			{
 				"pagePath": "pages/add/index",
-				"text": "添加",
-				"iconPath": "static/tab/add.png",
-				"selectedIconPath": "static/tab/add-active.png"
+				"text": "➕ 添加"
 			}
 		]
 	}

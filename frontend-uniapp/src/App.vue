@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { onLaunch } from "@dcloudio/uni-app";
+import { onLaunch } from "@dcloudio/uni-app"
 onLaunch(() => {
   // App launched
-});
+})
 </script>
 
 <style>
 page {
-  background-color: #FFF8F0;
+  background-color: #FFF8DC;
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
