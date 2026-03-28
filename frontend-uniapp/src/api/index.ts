@@ -43,7 +43,7 @@ function request<T>(path: string, options?: UniApp.RequestOptions): Promise<T> {
           reject(new Error(`HTTP ${res.statusCode}`))
         }
       },
-      fail: (err) => reject(new Error(err.errMsg)),
+      fail: (err) => reject(new Error(err?.errMsg || "Request failed")),
     })
   })
 }
@@ -71,7 +71,7 @@ export function identifyCat(filePath: string): Promise<IdentifyResult> {
           reject(new Error(`HTTP ${res.statusCode}`))
         }
       },
-      fail: (err) => reject(new Error(err.errMsg)),
+      fail: (err) => reject(new Error(err?.errMsg || "Request failed")),
     })
   })
 }
@@ -103,7 +103,7 @@ export function addCat(form: {
           reject(new Error(`HTTP ${res.statusCode}`))
         }
       },
-      fail: (err) => reject(new Error(err.errMsg)),
+      fail: (err) => reject(new Error(err?.errMsg || "Request failed")),
     })
   })
 }

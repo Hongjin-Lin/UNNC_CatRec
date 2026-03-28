@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { uploadFile, addCat } from '@/api/cat.js'
+import { addCat } from '@/api/index'
 
 export default {
   data() {
@@ -94,13 +94,20 @@ export default {
         uni.showToast({ title: '请填写猫咪名字', icon: 'none' })
         return
       }
+      if (!this.filePath) {
+        uni.showToast({ title: '请上传猫咪照片', icon: 'none' })
+        return
+      }
       this.submitting = true
       try {
-        let imageUrl = ''
-        if (this.filePath) {
-          imageUrl = await uploadFile(this.filePath)
-        }
-        await addCat({ ...this.form, imageUrl })
+        await addCat({ 
+          name: this.form.name,
+          location: this.form.location,
+          personality: this.form.personality,
+          tnr_status: false,
+          notes: this.form.remark || this.form.gender,
+          filePath: this.filePath
+        })
         this.success = true
       } catch (e) {
         uni.showToast({ title: '提交失败，请重试', icon: 'none' })

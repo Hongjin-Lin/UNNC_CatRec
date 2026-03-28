@@ -11,6 +11,6 @@ page {
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-* { box-sizing: border-box; }
+view, text, image, input, textarea, button, scroll-view { box-sizing: border-box; }
 button::after { border: none; }
 </style>
