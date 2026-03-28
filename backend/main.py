@@ -1,6 +1,8 @@
 import os
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
 from routers import identify, cats, add_cat
@@ -8,6 +10,11 @@ from routers import identify, cats, add_cat
 load_dotenv()
 
 app = FastAPI(title="UNNC CatRec API", version="0.1.0")
+
+# Serve campus cat photos as static files
+_library = Path(__file__).parent.parent / "campus_cats_library"
+if _library.exists():
+    app.mount("/static/cats", StaticFiles(directory=str(_library)), name="cat_photos")
 
 origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 
