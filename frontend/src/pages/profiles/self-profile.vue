@@ -59,23 +59,35 @@
           </view>
         </view>
 
-        <!-- Moments 预览 -->
-        <view class="moments-section">
-          <text class="section-title">喵友圈</text>
-          <view class="moments-grid">
-            <view
-              v-for="(photoUrl, idx) in momentPhotos"
-              :key="idx"
-              class="moment-placeholder"
-            >
-              <image :src="imgUrl(photoUrl)" class="moment-image" mode="aspectFill" />
-            </view>
+        <!-- 相册 -->
+        <view v-if="allPhotos.length" class="album-section">
+          <view class="section-header">
+            <text class="section-title">📸 相册</text>
+            <text class="photo-count">{{ allPhotos.length }} 张</text>
           </view>
+          <swiper
+            class="album-swiper"
+            :circular="false"
+            :indicator-dots="allPhotos.length > 1"
+            indicator-color="rgba(255,255,255,0.5)"
+            indicator-active-color="#F97316"
+          >
+            <swiper-item
+              v-for="(photoUrl, idx) in allPhotos"
+              :key="idx"
+              @tap="previewPhoto(idx)"
+            >
+              <image
+                :src="imgUrl(photoUrl)"
+                class="album-image"
+                mode="aspectFill"
+              />
+            </swiper-item>
+          </swiper>
         </view>
 
         <!-- 行动按钮 -->
         <view class="action-buttons">
-          <view class="btn btn-primary" @tap="navigateToMoments">查看喵友圈</view>
           <view class="btn btn-secondary" @tap="toggleFollow">
             {{ isFollowed ? '✓ 已关注' : '👁️ 关注' }}
           </view>
@@ -89,6 +101,7 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getCatById, type CatDetail } from '@/api/index'
+import { getCatCache } from '@/composables/catCache'
 
 const catId = ref('')
 const cat = ref<CatDetail | null>(null)
@@ -97,8 +110,7 @@ const loading = ref(true)
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
-// Backend already filters to images only; take first 4
-const momentPhotos = computed(() => (cat.value?.photos ?? []).slice(0, 4))
+const allPhotos = computed(() => cat.value?.photos ?? [])
 
 function traits(personality: string): string[] {
   if (!personality) return []
@@ -119,11 +131,10 @@ function toggleFollow() {
   isFollowed.value = !isFollowed.value
 }
 
-function navigateToMoments() {
-  const catName = cat.value?.Name || '猫咪'
-  uni.navigateTo({
-    url: `/pages/profiles/self-profile/cat-moment?catId=${catId.value}&catName=${encodeURIComponent(catName)}`,
-    fail: (err) => console.error('导航失败:', err)
+function previewPhoto(current: number) {
+  uni.previewImage({
+    current: current,
+    urls: allPhotos.value.map(imgUrl),
   })
 }
 
@@ -134,6 +145,15 @@ onLoad(async (options: any) => {
     return
   }
   catId.value = id
+
+  // Immediately render from cache if available (zero wait)
+  const cached = getCatCache(id)
+  if (cached) {
+    cat.value = { ...cached, photos: [] }
+    loading.value = false
+  }
+
+  // Fetch full detail (including photos) in background
   try {
     cat.value = await getCatById(id)
   } catch (e) {
@@ -178,13 +198,13 @@ onLoad(async (options: any) => {
 .info-value.tnr { color: #B7C9C0; font-weight: 600; }
 .traits-container { display: flex; flex-wrap: wrap; gap: 8rpx; }
 .trait-tag { background: #FFF8DC; color: #7A8A80; padding: 6rpx 12rpx; border-radius: 20rpx; font-size: 20rpx; border: 1rpx solid #B7C9C0; }
-.moments-section { margin-bottom: 16rpx; }
-.section-title { font-size: 26rpx; font-weight: 700; color: #1C1917; margin-bottom: 12rpx; display: block; }
-.moments-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8rpx; margin-bottom: 20rpx; }
-.moment-placeholder { aspect-ratio: 1; border-radius: 8rpx; background: linear-gradient(135deg,#FFF8DC,#FEF3E2); display: flex; align-items: center; justify-content: center; border: 1rpx dashed #F4A460; overflow: hidden; }
-.moment-image { width: 100%; height: 100%; object-fit: cover; }
+.album-section { margin-bottom: 16rpx; }
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12rpx; }
+.section-title { font-size: 26rpx; font-weight: 700; color: #1C1917; }
+.photo-count { font-size: 22rpx; color: #B7C9C0; }
+.album-swiper { width: 100%; height: 480rpx; border-radius: 16rpx; overflow: hidden; }
+.album-image { width: 100%; height: 100%; }
 .action-buttons { display: flex; flex-direction: column; gap: 12rpx; padding: 0 16rpx; }
 .btn { padding: 16rpx; border-radius: 8rpx; text-align: center; font-weight: 600; font-size: 26rpx; border: none; }
-.btn-primary { background: linear-gradient(135deg,#B7C9C0,#D8BFD8); color: white; }
 .btn-secondary { background: white; color: #B7C9C0; border: 2rpx solid #B7C9C0; }
 </style>

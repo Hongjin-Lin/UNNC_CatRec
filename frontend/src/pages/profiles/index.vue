@@ -73,6 +73,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { getCats, type CatProfile } from '@/api/index'
 import { useLocale } from '@/composables/useLocale'
 import LangToggle from '@/components/LangToggle.vue'
+import { setCatCache } from '@/composables/catCache'
 
 const { t: tRef, setNavTitle } = useLocale()
 const t = computed(() => tRef.value)
@@ -105,6 +106,7 @@ function imgUrl(url: string): string {
 }
 
 function navigateToCat(cat: CatProfile) {
+  setCatCache(cat)
   const navUrl = `/pages/profiles/self-profile?catId=${cat.id}&catName=${encodeURIComponent(cat.Name)}`
   uni.navigateTo({
     url: navUrl,
