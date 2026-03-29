@@ -1,14 +1,17 @@
 <template>
   <view class="page">
     <view class="header">
-      <text class="title">猫咪识别</text>
-      <text class="subtitle">上传一张照片，AI 帮你认出是哪只猫~</text>
+      <view class="header-left">
+        <text class="title">{{ t.identify.title }}</text>
+        <text class="subtitle">{{ t.identify.subtitle }}</text>
+      </view>
+      <LangToggle />
     </view>
 
     <!-- 上传区 -->
     <view v-if="!preview" class="upload-box" @tap="chooseImage">
       <text class="upload-icon">📷</text>
-      <text class="upload-hint">点击选择猫咪照片</text>
+      <text class="upload-hint">{{ t.identify.upload }}</text>
     </view>
 
     <!-- 预览 -->
@@ -19,7 +22,7 @@
 
     <!-- 识别按钮 -->
     <button v-if="preview && !result" class="btn-primary" :disabled="loading" @tap="identify">
-      {{ loading ? '识别中…' : '🔍 开始识别' }}
+      {{ loading ? t.identify.identifying : t.identify.identify }}
     </button>
 
     <!-- 错误 -->
@@ -30,21 +33,21 @@
       <!-- 未匹配 -->
       <view v-if="result.no_match" class="no-match-card">
         <text class="no-match-emoji">🤔</text>
-        <text class="no-match-title">没找到匹配的猫咪</text>
-        <text class="no-match-sub">要不要把这只新猫加入名册？</text>
-        <navigator url="/pages/add/index" class="btn-link">去添加</navigator>
+        <text class="no-match-title">{{ t.identify.noMatchTitle }}</text>
+        <text class="no-match-sub">{{ t.identify.noMatchSub }}</text>
+        <navigator url="/pages/add/index" class="btn-link">{{ t.identify.goAdd }}</navigator>
       </view>
 
       <!-- 匹配结果列表 -->
       <view v-else>
-        <text class="result-label">可能是以下猫咪：</text>
+        <text class="result-label">{{ t.identify.resultLabel }}</text>
         <view v-for="(cat, index) in result.matches" :key="index" class="result-card" @tap="navigateToCat(cat)">
           <view class="match-header">
             <text class="match-rank">#{{ index + 1 }}</text>
             <text class="match-emoji">😺</text>
             <view class="match-info">
               <text class="match-name">{{ cat.name }}</text>
-              <text class="match-confidence">置信度 {{ (cat.confidence * 100).toFixed(1) }}%</text>
+              <text class="match-confidence">{{ t.identify.confidence }} {{ (cat.confidence * 100).toFixed(1) }}%</text>
             </view>
             <text v-if="cat.tnr_status" class="tnr-badge">✅ TNR</text>
           </view>
@@ -59,8 +62,8 @@
 
         <!-- 都不是 -->
         <view class="not-found-row">
-          <text class="not-found-text">以上都不是？</text>
-          <navigator url="/pages/add/index" class="btn-link-small">去添加这只猫</navigator>
+          <text class="not-found-text">{{ t.identify.notFound }}</text>
+          <navigator url="/pages/add/index" class="btn-link-small">{{ t.identify.notFoundLink }}</navigator>
         </view>
       </view>
     </view>
@@ -68,8 +71,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { identifyCat } from '@/api/index'
+import { useLocale } from '@/composables/useLocale'
+import LangToggle from '@/components/LangToggle.vue'
+
+const { t: tRef } = useLocale()
+const t = computed(() => tRef.value)
 
 interface CatMatch {
   id?: string
@@ -143,7 +151,8 @@ async function identify() {
 
 <style scoped>
 .page { padding: 40rpx 32rpx 120rpx; background: #FFF8F0; min-height: 100vh; }
-.header { margin-bottom: 40rpx; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 40rpx; }
+.header-left { flex: 1; }
 .title { display: block; font-size: 48rpx; font-weight: 700; color: #1C1917; }
 .subtitle { display: block; font-size: 26rpx; color: #78716C; margin-top: 8rpx; }
 .upload-box {

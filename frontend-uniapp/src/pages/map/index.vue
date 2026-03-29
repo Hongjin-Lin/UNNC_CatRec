@@ -1,8 +1,11 @@
 <template>
   <view class="page">
     <view class="header">
-      <text class="title">🗺️ 校园地图</text>
-      <text class="subtitle">猫咪出没热点</text>
+      <view class="header-left">
+        <text class="title">{{ t.map.title }}</text>
+        <text class="subtitle">{{ t.map.subtitle }}</text>
+      </view>
+      <LangToggle />
     </view>
     <map
       class="map"
@@ -28,8 +31,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { getMapData, type Hotspot } from '@/api/index'
+import { useLocale } from '@/composables/useLocale'
+import LangToggle from '@/components/LangToggle.vue'
+
+const { t: tRef } = useLocale()
+const t = computed(() => tRef.value)
 
 const center = { lat: 29.80002, lng: 121.56351 }
 const hotspots = ref<Hotspot[]>([])
@@ -76,85 +84,22 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page {
-  background: #FFF8DC;
-  min-height: 100vh;
-}
-
-.header {
-  padding: 40rpx 24rpx 24rpx;
-}
-
-.title {
-  display: block;
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #1C1917;
-  letter-spacing: 1rpx;
-}
-
-.subtitle {
-  display: block;
-  font-size: 26rpx;
-  color: #D8BFD8;
-  margin-top: 8rpx;
-  font-weight: 500;
-}
-
-.map {
-  width: 100%;
-  height: 480rpx;
-}
-
-.hotspot-list {
-  padding: 24rpx 24rpx 120rpx;
-}
-
+.page { background: #FFF8DC; min-height: 100vh; }
+.header { padding: 40rpx 24rpx 24rpx; display: flex; align-items: flex-start; justify-content: space-between; }
+.header-left { flex: 1; }
+.title { display: block; font-size: 48rpx; font-weight: 700; color: #1C1917; letter-spacing: 1rpx; }
+.subtitle { display: block; font-size: 26rpx; color: #D8BFD8; margin-top: 8rpx; font-weight: 500; }
+.map { width: 100%; height: 480rpx; }
+.hotspot-list { padding: 24rpx 24rpx 120rpx; }
 .hotspot-item {
-  background: white;
-  border-radius: 16rpx;
-  border: 1rpx solid #F4A460;
-  padding: 20rpx 24rpx;
-  margin-bottom: 16rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  transition: all 0.2s;
+  background: white; border-radius: 16rpx; border: 1rpx solid #F4A460;
+  padding: 20rpx 24rpx; margin-bottom: 16rpx;
+  display: flex; flex-direction: column; gap: 8rpx; transition: all 0.2s;
 }
-
-.hotspot-item:active {
-  background: #FFF8DC;
-  border-color: #B7C9C0;
-}
-
-.hotspot-tag {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1C1917;
-}
-
-.hotspot-cats {
-  font-size: 26rpx;
-  color: #7A8A80;
-  line-height: 1.5;
-}
-
-.hotspot-coords {
-  font-size: 22rpx;
-  color: #D8BFD8;
-}
-
-.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40rpx;
-  min-height: 40vh;
-}
-
-.error-text {
-  color: #ef4444;
-  font-size: 26rpx;
-  font-weight: 600;
-}
+.hotspot-item:active { background: #FFF8DC; border-color: #B7C9C0; }
+.hotspot-tag { font-size: 28rpx; font-weight: 600; color: #1C1917; }
+.hotspot-cats { font-size: 26rpx; color: #7A8A80; line-height: 1.5; }
+.hotspot-coords { font-size: 22rpx; color: #D8BFD8; }
+.center { display: flex; justify-content: center; align-items: center; padding: 40rpx; min-height: 40vh; }
+.error-text { color: #ef4444; font-size: 26rpx; font-weight: 600; }
 </style>
