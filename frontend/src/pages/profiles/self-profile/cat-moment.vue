@@ -101,6 +101,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { getCatById } from '@/api/index'
 
 interface Moment {
   id: string
@@ -220,41 +221,16 @@ function extractParamsFromUrl(): { catId: string; catName: string } {
   }
 }
 
-// 检查图片是否存在（通过Promise）
-function checkImageExists(url: string): Promise<boolean> {
-  return new Promise((resolve) => {
-      uni.getImageInfo({
-        src: url,
-        success: () => resolve(true),
-        fail: () => resolve(false)
-      })
-  })
-}
-
 async function fetchCatPhotos() {
   try {
     console.log('开始获取猫咪图片:', catName.value)
     
-    // 本地库中的图片是按 {catName}/{catName}_1.jpeg, {catName}_2.jpeg 等命名的
-    // 我们尝试加载这些图片，直到某个数字失败
-    const photoUrls: string[] = []
-    
-    // 尝试加载最多20张图片，但连续失败3个就停止
-    let consecutiveFailures = 0
-    for (let i = 1; i <= 20 && consecutiveFailures < 3; i++) {
-      const photoUrl = `/static/cats/${catName.value}/${catName.value}_${i}.jpeg`
-      const fullUrl = imgUrl(photoUrl)
-      
-      console.log(`尝试加载第${i}张图片:`, fullUrl)
-      const exists = await checkImageExists(fullUrl)
-      
-      if (exists) {
-        photoUrls.push(photoUrl)
-        consecutiveFailures = 0 // 重置计数器
-        console.log(`✓ 第${i}张图片存在`)
-      } else {
-        consecutiveFailures++
-        console.log(`✗ 第${i}张图片不存在，连续失败${consecutiveFailures}次`)
+    // 直接调用后端 API 获取该猫咪拥有的所有照片
+    let photoUrls: string[] = []
+    if (catId.value) {
+      const catDetail = await getCatById(catId.value)
+      if (catDetail && catDetail.photos) {
+        photoUrls = catDetail.photos
       }
     }
 

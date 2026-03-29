@@ -52,6 +52,7 @@ def list_cats():
 
 # Must be registered BEFORE /{cat_id} to avoid being matched as a cat id
 @router.get("/map-data")
+@router.get("/map-data/")
 def map_data():
     conn = _get_db()
     conn.row_factory = sqlite3.Row

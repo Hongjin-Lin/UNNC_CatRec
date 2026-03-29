@@ -91,6 +91,12 @@
           <view class="btn btn-secondary" @tap="toggleFollow">
             {{ isFollowed ? '✓ 已关注' : '👁️ 关注' }}
           </view>
+          <navigator 
+            class="btn btn-primary" 
+            :url="`/pages/profiles/self-profile/cat-moment?catId=${catId}&catName=${encodeURIComponent(cat.Name)}`"
+          >
+            去「喵友圈」看看
+          </navigator>
         </view>
       </view>
     </view>
@@ -206,5 +212,6 @@ onLoad(async (options: any) => {
 .album-image { width: 100%; height: 100%; }
 .action-buttons { display: flex; flex-direction: column; gap: 12rpx; padding: 0 16rpx; }
 .btn { padding: 16rpx; border-radius: 8rpx; text-align: center; font-weight: 600; font-size: 26rpx; border: none; }
+.btn-primary { background: #F4A460; color: white; border: 2rpx solid #F4A460; }
 .btn-secondary { background: white; color: #B7C9C0; border: 2rpx solid #B7C9C0; }
 </style>

@@ -7,6 +7,7 @@ router = APIRouter()
 DB_PATH = Path(__file__).parent.parent / "data" / "cats.db"
 
 @router.post("")
+@router.post("/")
 async def identify_cat(image: UploadFile = File(...)):
     if not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")

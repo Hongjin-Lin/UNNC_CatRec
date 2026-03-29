@@ -7,6 +7,7 @@ router = APIRouter()
 
 
 @router.post("/add")
+@router.post("/add/")
 async def add_cat(
     name: str = Form(...),
     location: str = Form(...),
