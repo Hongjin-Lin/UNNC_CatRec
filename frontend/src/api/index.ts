@@ -69,14 +69,14 @@ export async function getCats(): Promise<CatProfile[]> {
 }
 
 export async function getMapData(): Promise<Hotspot[]> {
-  const data = await request<{ hotspots: Hotspot[] }>('/cats/map-data/')
+  const data = await request<{ hotspots: Hotspot[] }>('/cats/map-data')
   return data.hotspots
 }
 
 export function identifyCat(filePath: string): Promise<IdentifyResult> {
   return new Promise((resolve, reject) => {
     uni.uploadFile({
-      url: `${BASE}/identify/`,
+      url: `${BASE}/identify`,
       filePath,
       name: 'image',
       success: (res) => {
@@ -101,7 +101,7 @@ export function addCat(form: {
 }): Promise<{ id: string }> {
   return new Promise((resolve, reject) => {
     uni.uploadFile({
-      url: `${BASE}/cats/add/`,
+      url: `${BASE}/cats/add`,
       filePath: form.filePath,
       name: 'image',
       formData: {
