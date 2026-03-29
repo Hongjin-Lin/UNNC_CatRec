@@ -22,7 +22,7 @@ BASE_CKP = "facebook/dinov2-small"
 AVITO_REPO = "AvitoTech/DINO-v2-small-for-animal-identification"
 AVITO_FILE = "model.safetensors"
 LOCAL_MODEL_DIR = Path(__file__).parent.parent.parent / "model_save"
-CONFIDENCE_THRESHOLD = 0.70
+CONFIDENCE_THRESHOLD = 0.65
 
 
 def _load_model():
