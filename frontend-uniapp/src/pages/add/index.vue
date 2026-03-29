@@ -86,12 +86,15 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { addCat } from '@/api/index'
 import { useLocale } from '@/composables/useLocale'
 import LangToggle from '@/components/LangToggle.vue'
 
-const { t: tRef } = useLocale()
+const { t: tRef, setNavTitle } = useLocale()
 const t = computed(() => tRef.value)
+
+onShow(() => setNavTitle('add'))
 
 const adminPassword = ref('')
 const filePath = ref('')

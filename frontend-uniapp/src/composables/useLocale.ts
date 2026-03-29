@@ -3,8 +3,17 @@ import zh from '@/locales/zh'
 import en from '@/locales/en'
 
 type Lang = 'zh' | 'en'
+type TabKey = 'identify' | 'profiles' | 'map' | 'add'
 
 const STORAGE_KEY = 'app_lang'
+
+// Map page path substrings to nav keys
+const PATH_TO_KEY: Array<[string, TabKey]> = [
+  ['identify', 'identify'],
+  ['profiles', 'profiles'],
+  ['map', 'map'],
+  ['add', 'add'],
+]
 
 function loadLang(): Lang {
   try {
@@ -15,8 +24,31 @@ function loadLang(): Lang {
 }
 
 const lang = ref<Lang>(loadLang())
-
 const messages = { zh, en }
+
+const TAB_KEYS: TabKey[] = ['identify', 'profiles', 'map', 'add']
+
+function applyTabBar(l: Lang) {
+  const tabs = messages[l].tab
+  TAB_KEYS.forEach((key, index) => {
+    uni.setTabBarItem({ index, text: tabs[key] })
+  })
+}
+
+function applyCurrentNavTitle(l: Lang) {
+  try {
+    const pages = getCurrentPages()
+    if (!pages.length) return
+    const currentPage = pages[pages.length - 1]
+    const route: string = (currentPage as any).route || ''
+    for (const [pathFragment, key] of PATH_TO_KEY) {
+      if (route.includes(pathFragment)) {
+        uni.setNavigationBarTitle({ title: messages[l].nav[key] })
+        break
+      }
+    }
+  } catch {}
+}
 
 export function useLocale() {
   const t = computed(() => messages[lang.value])
@@ -26,7 +58,14 @@ export function useLocale() {
     try {
       uni.setStorageSync(STORAGE_KEY, lang.value)
     } catch {}
+    applyTabBar(lang.value)
+    applyCurrentNavTitle(lang.value)
   }
 
-  return { lang, t, toggleLang }
+  function setNavTitle(key: TabKey) {
+    uni.setNavigationBarTitle({ title: messages[lang.value].nav[key] })
+    applyTabBar(lang.value)
+  }
+
+  return { lang, t, toggleLang, setNavTitle }
 }

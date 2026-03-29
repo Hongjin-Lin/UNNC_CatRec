@@ -69,12 +69,15 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { getCats, type CatProfile } from '@/api/index'
 import { useLocale } from '@/composables/useLocale'
 import LangToggle from '@/components/LangToggle.vue'
 
-const { t: tRef } = useLocale()
+const { t: tRef, setNavTitle } = useLocale()
 const t = computed(() => tRef.value)
+
+onShow(() => setNavTitle('profiles'))
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 

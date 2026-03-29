@@ -32,12 +32,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { getMapData, type Hotspot } from '@/api/index'
 import { useLocale } from '@/composables/useLocale'
 import LangToggle from '@/components/LangToggle.vue'
 
-const { t: tRef } = useLocale()
+const { t: tRef, setNavTitle } = useLocale()
 const t = computed(() => tRef.value)
+
+onShow(() => setNavTitle('map'))
 
 const center = { lat: 29.80002, lng: 121.56351 }
 const hotspots = ref<Hotspot[]>([])

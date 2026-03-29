@@ -1,4 +1,16 @@
 export default {
+  nav: {
+    identify: '猫咪识别',
+    profiles: '猫咪名册',
+    map: '校园地图',
+    add: '添加猫咪',
+  },
+  tab: {
+    identify: '🔍 识别',
+    profiles: '📚 猫册',
+    map: '🗺️ 地图',
+    add: '➕ 添加',
+  },
   identify: {
     title: '猫咪识别',
     subtitle: '上传一张照片，AI 帮你认出是哪只猫~',

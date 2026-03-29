@@ -1,4 +1,16 @@
 export default {
+  nav: {
+    identify: 'Cat ID',
+    profiles: 'Cat Registry',
+    map: 'Campus Map',
+    add: 'Add Cat',
+  },
+  tab: {
+    identify: '🔍 ID',
+    profiles: '📚 Cats',
+    map: '🗺️ Map',
+    add: '➕ Add',
+  },
   identify: {
     title: 'Cat ID',
     subtitle: 'Upload a photo and let AI identify the cat~',
