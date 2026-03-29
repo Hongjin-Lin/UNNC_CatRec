@@ -55,6 +55,14 @@ function request<T>(path: string, options?: UniApp.RequestOptions): Promise<T> {
   })
 }
 
+export interface CatDetail extends CatProfile {
+  photos: string[]
+}
+
+export async function getCatById(id: string): Promise<CatDetail> {
+  return request<CatDetail>(`/cats/${id}`)
+}
+
 export async function getCats(): Promise<CatProfile[]> {
   const data = await request<{ cats: CatProfile[] }>('/cats/')
   return data.cats

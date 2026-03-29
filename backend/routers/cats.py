@@ -1,17 +1,30 @@
 import sqlite3
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from services.nocodb_service import get_map_data
 
 router = APIRouter()
 
 DB_PATH = Path(__file__).parent.parent / "data" / "cats.db"
+LIBRARY_PATH = Path(__file__).parent.parent.parent / "campus_cats_library"
+IMAGE_EXTS = {".jpeg", ".jpg", ".png", ".webp"}
 
 
 def _get_db():
     if not DB_PATH.exists():
         raise HTTPException(status_code=503, detail="cats.db not found — run build_profile.py first")
     return sqlite3.connect(DB_PATH)
+
+
+def _get_photos(cat_name: str) -> list[str]:
+    """Return sorted list of image URLs for a cat by scanning the library folder."""
+    folder = LIBRARY_PATH / cat_name
+    if not folder.exists():
+        return []
+    files = sorted(
+        f for f in folder.iterdir()
+        if f.is_file() and f.suffix.lower() in IMAGE_EXTS
+    )
+    return [f"/static/cats/{cat_name}/{f.name}" for f in files]
 
 
 @router.get("/")
@@ -37,6 +50,7 @@ def list_cats():
     return {"cats": cats}
 
 
+# Must be registered BEFORE /{cat_id} to avoid being matched as a cat id
 @router.get("/map-data")
 def map_data():
     conn = _get_db()
@@ -49,8 +63,6 @@ def map_data():
         tag = row["location"] or "unknown"
         grouped.setdefault(tag, []).append(row["name"])
 
-    # Hardcoded mapping from location tag -> GPS coords for the UNNC campus.
-    # Base mapping around center: 29.80002, 121.56351
     LOCATION_COORDS = {
         "23": (29.8035, 121.5620),
         "22": (29.8028, 121.5625),
@@ -69,16 +81,38 @@ def map_data():
 
     hotspots = []
     for tag, names in grouped.items():
-        # Match substring to find approximate coords
         coords = None
         for key, value in LOCATION_COORDS.items():
             if key in tag:
                 coords = value
                 break
-        
         if coords:
             hotspots.append({"tag": tag, "lat": coords[0], "lng": coords[1], "cats": names})
         else:
             hotspots.append({"tag": tag, "lat": None, "lng": None, "cats": names})
-    
+
     return {"hotspots": hotspots}
+
+
+@router.get("/{cat_id}")
+def get_cat(cat_id: str):
+    conn = _get_db()
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT id, name, location, personality, tnr_status, notes, image_url FROM cats WHERE id = ?",
+        (cat_id,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Cat not found")
+    photos = _get_photos(row["name"])
+    return {
+        "id": str(row["id"]),
+        "Name": row["name"],
+        "Location": row["location"],
+        "Personality": row["personality"],
+        "TNR_Status": bool(row["tnr_status"]),
+        "Notes": row["notes"],
+        "image_url": row["image_url"],
+        "photos": photos,
+    }
