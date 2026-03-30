@@ -8,6 +8,7 @@ export default defineConfig({
     port: 5174,
     host: "0.0.0.0"
   },
+  base: './',
   define: {
     __API_BASE__: JSON.stringify(process.env.VITE_API_URL || 'http://localhost:8000')
   }
