@@ -11,7 +11,7 @@ from routers import identify, cats, add_cat
 
 app = FastAPI(title="UNNC CatRec API", version="0.1.0")
 
-origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174").split(",")
+origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174,https://catrecweb.thirtysixstudio.net").split(",")
 
 app.add_middleware(
     CORSMiddleware,
