@@ -1,5 +1,6 @@
 import sqlite3
 import time
+import asyncio
 from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from services.identify_service import find_best_match
@@ -19,7 +20,8 @@ async def identify_cat(image: UploadFile = File(...)):
     read_img_time = time.time()
     print(f"[Profiling] Time to read image bytes: {read_img_time - start_time:.4f} seconds")
 
-    result = find_best_match(image_bytes)
+    # 使用 asyncio.to_thread 防止阻塞主事件循环
+    result = await asyncio.to_thread(find_best_match, image_bytes)
     inference_time = time.time()
     print(f"[Profiling] Time for AI inference (find_best_match): {inference_time - read_img_time:.4f} seconds")
 

@@ -8,8 +8,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from routers import identify, cats, add_cat
+from services.identify_service import _load_model, _load_profiles
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="UNNC CatRec API", version="0.1.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("[Lifespan] 🚀 Pre-loading model to GPU and reading embeddings...")
+    _load_model()
+    _load_profiles()
+    print("[Lifespan] ✅ AI Model & Vectors are ready for requests!")
+    yield
+    print("[Lifespan] 🛑 Server shutting down...")
+
+app = FastAPI(title="UNNC CatRec API", version="0.1.0", lifespan=lifespan)
 
 origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174,https://catrecweb.thirtysixstudio.net").split(",")
 
