@@ -105,12 +105,27 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { getCatById, type CatDetail } from '@/api/index'
 import { getCatCache } from '@/composables/catCache'
 
 const catId = ref('')
 const cat = ref<CatDetail | null>(null)
+
+onShareAppMessage(() => {
+  return {
+    title: cat.value?.name ? `UNNC 校园猫咪图鉴 - ${cat.value.name}` : 'UNNC 校园猫咪详情',
+    path: `/pages/profiles/self-profile?id=${catId.value}`
+  }
+})
+
+onShareTimeline(() => {
+  return {
+    title: cat.value?.name ? `UNNC 校园猫咪图鉴 - ${cat.value.name}` : 'UNNC 校园猫咪详情',
+    query: `id=${catId.value}`
+  }
+})
+
 const isFollowed = ref(false)
 const loading = ref(true)
 

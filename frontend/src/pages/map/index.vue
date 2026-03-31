@@ -32,13 +32,23 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { getMapData, type Hotspot } from '@/api/index'
 import { useLocale } from '@/composables/useLocale'
 import LangToggle from '@/components/LangToggle.vue'
 
 const { t: tRef, setNavTitle } = useLocale()
 const t = computed(() => tRef.value)
+
+onShareAppMessage(() => ({
+  title: 'UNNC 校园猫咪地图',
+  path: '/pages/map/index'
+}))
+
+onShareTimeline(() => ({
+  title: 'UNNC 校园猫咪地图',
+  query: ''
+}))
 
 onShow(() => setNavTitle('map'))
 

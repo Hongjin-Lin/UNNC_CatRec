@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { onShow } from '@dcloudio/uni-app'
+import { onShow, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { getCats, type CatProfile } from '@/api/index'
 import { useLocale } from '@/composables/useLocale'
 import LangToggle from '@/components/LangToggle.vue'
@@ -77,6 +77,20 @@ import { setCatCache } from '@/composables/catCache'
 
 const { t: tRef, setNavTitle } = useLocale()
 const t = computed(() => tRef.value)
+
+onShareAppMessage(() => {
+  return {
+    title: 'UNNC 校园猫咪花名册',
+    path: '/pages/profiles/index'
+  }
+})
+
+onShareTimeline(() => {
+  return {
+    title: 'UNNC 校园猫咪花名册',
+    query: ''
+  }
+})
 
 onShow(() => setNavTitle('profiles'))
 
