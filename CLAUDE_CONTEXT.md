@@ -247,3 +247,4 @@ image       file    图片文件
 3. **地图位置硬编码**：`LOCATION_COORDS` 在 `backend/routers/cats.py` 里，新地址或不确定的地址标签需要加映射关键字。
 4. **添加猫咪鉴权**：只进行简单前端验证限制（`UNNC2026` 后门）。
 5. **图片存储**：图片上传到 NocoDB attachment，不是独立对象存储。
+   
