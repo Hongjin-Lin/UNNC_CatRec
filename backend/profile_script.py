@@ -3,6 +3,15 @@ import os
 import requests
 from urllib.parse import urljoin
 
+"""
+This script ONLY downloads cat media files based on an existing cats.json.
+
+Data pipeline:
+1) Run sync_cats_json.py to export latest records from NocoDB into ../cats.json.
+2) Run this script (profile_script.py) to download photos into ../campus_cats_library.
+3) Run build_profile.py to rebuild backend/data/cats.db with metadata from cats.json.
+"""
+
 # --- 配置区 ---
 JSON_FILE = '../cats.json'        # 你刚才保存的文件名
 BASE_URL = "http://tnr.0xnohes-l.cn:8900/"  # 基础域名

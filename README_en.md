@@ -8,6 +8,12 @@
 
 UNNC CatRec is a campus cat identification and documentation platform integrated with AI computer vision models. Whether you encounter an unknown campus cat and want to know its name, or you simply want to view their daily hotspots and photos remotely, this app provides the most heartwarming experience.
 
+## 📝 2026-04-01 Update Digest (For Merge Review)
+
+- Daily Chinese update log (Zoe): [UPDATE_LOG_2026-04-01_ZOE.md](UPDATE_LOG_2026-04-01_ZOE.md)
+- Current project context: `CLAUDE_CONTEXT.md`
+- Backend data pipeline notes: `backend/DATA_PIPELINE.md`
+
 ---
 
 ## 🌟 Core Features
@@ -60,7 +66,7 @@ uvicorn main:app --reload
 
 ### 2. Start Frontend App
 ```bash
-cd frontend-uniapp  # or frontend/
+cd frontend
 npm install
 npm run dev:h5      # Preview in browser (Web H5)
 npm run dev:mp-weixin # Preview in WeChat Developer Tools

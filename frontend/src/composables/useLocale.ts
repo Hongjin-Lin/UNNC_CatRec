@@ -3,7 +3,7 @@ import zh from '@/locales/zh'
 import en from '@/locales/en'
 
 type Lang = 'zh' | 'en'
-type TabKey = 'identify' | 'profiles' | 'map' | 'add'
+type TabKey = 'identify' | 'profiles' | 'map' | 'add' | 'account'
 
 const STORAGE_KEY = 'app_lang'
 
@@ -13,6 +13,7 @@ const PATH_TO_KEY: Array<[string, TabKey]> = [
   ['profiles', 'profiles'],
   ['map', 'map'],
   ['add', 'add'],
+  ['account', 'account'],
 ]
 
 function loadLang(): Lang {
@@ -26,12 +27,15 @@ function loadLang(): Lang {
 const lang = ref<Lang>(loadLang())
 const messages = { zh, en }
 
-const TAB_KEYS: TabKey[] = ['identify', 'profiles', 'map', 'add']
+const TAB_KEYS: TabKey[] = ['identify', 'profiles', 'map', 'account']
 
 function applyTabBar(l: Lang) {
   const tabs = messages[l].tab
   TAB_KEYS.forEach((key, index) => {
-    uni.setTabBarItem({ index, text: tabs[key] })
+    const ret = uni.setTabBarItem({ index, text: tabs[key] }) as unknown
+    if (ret && typeof (ret as Promise<unknown>).catch === 'function') {
+      ;(ret as Promise<unknown>).catch(() => {})
+    }
   })
 }
 
@@ -64,7 +68,6 @@ export function useLocale() {
 
   function setNavTitle(key: TabKey) {
     uni.setNavigationBarTitle({ title: messages[lang.value].nav[key] })
-    applyTabBar(lang.value)
   }
 
   return { lang, t, toggleLang, setNavTitle }

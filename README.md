@@ -8,6 +8,12 @@
 
 UNNC CatRec（喵友圈圈）是一个集成了人工智能视觉模型的校园猫咪识别与档案记录平台。无论是偶遇了不知名的校园猫咪，还是想随时“云吸猫”、查看猫咪们的日常热点地图，“喵友圈圈”都能为你提供最贴心、最治愈的体验。
 
+## 📝 2026.4.1 更新与合并阅读入口
+
+- 今日中文更新日志（Zoe）：[UPDATE_LOG_2026-04-01_ZOE.md](UPDATE_LOG_2026-04-01_ZOE.md)
+- 当前上下文与项目状态：`CLAUDE_CONTEXT.md`
+- 后端数据流程说明：`backend/DATA_PIPELINE.md`
+
 ---
 
 ## 🌟 核心功能
@@ -60,7 +66,7 @@ uvicorn main:app --reload
 
 ### 2. 启动前端页面
 ```bash
-cd frontend-uniapp  # 或 frontend/
+cd frontend
 npm install
 npm run dev:h5      # 浏览器预览 (Web H5)
 npm run dev:mp-weixin # 微信开发者小程序端

@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ForumData",
+  "type": "object",
+  "description": "Schemas for Forum core entities: Posts, Comments, and Likes to reserve standard table fields.",
+  "definitions": {
+    "Post": {
+      "type": "object",
+      "required": ["id", "author_id", "content", "created_at"],
+      "properties": {
+        "id": { "type": "string", "description": "Post ID" },
+        "author_id": { "type": "string", "description": "Foreign key to UserAccount id" },
+        "cat_id": { "type": "string", "description": "Optional foreign key to CatProfile.id, if post is tagging a specific cat" },
+        "content": { "type": "string", "description": "Text content of the post" },
+        "media_urls": { 
+          "type": "array", 
+          "items": { "type": "string", "format": "uri" },
+          "description": "Images or videos attached to the post"
+        },
+        "location": { "type": "string", "description": "Where the cat was seen / post was created" },
+        "like_count": { "type": "integer", "default": 0 },
+        "comment_count": { "type": "integer", "default": 0 },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Comment": {
+      "type": "object",
+      "required": ["id", "post_id", "author_id", "content", "created_at"],
+      "properties": {
+        "id": { "type": "string" },
+        "post_id": { "type": "string", "description": "Foreign key to Post" },
+        "parent_comment_id": { "type": "string", "description": "Null if top-level comment, else ID of parent Comment" },
+        "author_id": { "type": "string", "description": "Foreign key to UserAccount" },
+        "content": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Like": {
+      "type": "object",
+      "required": ["id", "user_id", "target_id", "target_type", "created_at"],
+      "properties": {
+        "id": { "type": "string" },
+        "user_id": { "type": "string", "description": "User who liked" },
+        "target_id": { "type": "string", "description": "ID of the Post or Comment" },
+        "target_type": { 
+          "type": "string", 
+          "enum": ["post", "comment"] 
+        },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

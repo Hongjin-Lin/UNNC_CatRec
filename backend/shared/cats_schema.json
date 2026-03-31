@@ -6,7 +6,14 @@
   "properties": {
     "id": { "type": "string", "description": "Unique identifier" },
     "name": { "type": "string" },
+    "species": { "type": "string" },
+    "breed": { "type": "string" },
+    "color": { "type": "string" },
+    "gender": { "type": "string", "enum": ["公", "母", "未知"] },
+    "estimated_age": { "type": ["number", "null"] },
+    "weight": { "type": ["number", "null"] },
     "location": { "type": "string", "description": "Location tag e.g. #23" },
+    "status": { "type": "string", "description": "Current status e.g. 已放归" },
     "personality": {
       "type": "array",
       "items": { "type": "string" },
@@ -15,6 +22,10 @@
     "tnr_status": { "type": "boolean", "description": "Trap-Neuter-Return done" },
     "image_url": { "type": "string", "format": "uri" },
     "embedding_id": { "type": "string", "description": "Reference key into cat_profiles.pkl" },
-    "notes": { "type": "string" }
+    "notes": { "type": "string" },
+    "click_count": { "type": "integer", "default": 0 },
+    "likes_count": { "type": "integer", "default": 0 },
+    "comments_count": { "type": "integer", "default": 0 },
+    "favorites_count": { "type": "integer", "default": 0 }
   }
 }

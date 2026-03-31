@@ -28,7 +28,9 @@
           <view class="profile-info">
             <view class="name-star">
               <text class="cat-name">{{ cat.Name }}</text>
-              <text class="star-icon">⭐</text>
+              <text class="star-icon" :class="{ active: favorite }" @tap="toggleFavorite">
+                {{ favorite ? '⭐' : '☆' }}
+              </text>
             </view>
             <text class="cat-id">ID: {{ catId }}</text>
           </view>
@@ -46,6 +48,28 @@
               <view v-for="trait in traits(cat.Personality || '')" :key="trait" class="trait-tag">{{ trait }}</view>
               <view v-if="!cat.Personality" class="trait-tag">性格待记录</view>
             </view>
+          </view>
+          <view class="info-item">
+            <text class="info-label">🚻 性别</text>
+            <text class="info-value">{{ cat.Gender || '未知' }}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">🏷️ 类别/品种</text>
+            <text class="info-value">{{ cat.Breed || cat.Species || '待补充' }}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">🎨 毛色</text>
+            <text class="info-value">{{ cat.Color || '待补充' }}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">🩺 当前状态</text>
+            <text class="info-value">{{ cat.Current_status || '待补充' }}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">📏 年龄/体重</text>
+            <text class="info-value">
+              {{ cat.Estimated_Age ?? '未知' }} 岁 · {{ cat.Weight ?? '未知' }} kg
+            </text>
           </view>
           <view class="info-item">
             <text class="info-label">✒️ TNR 状态</text>
@@ -88,8 +112,8 @@
 
         <!-- 行动按钮 -->
         <view class="action-buttons">
-          <view class="btn btn-secondary" @tap="toggleFollow">
-            {{ isFollowed ? '✓ 已关注' : '👁️ 关注' }}
+          <view class="btn btn-secondary" :class="{ active: favorite }" @tap="toggleFavorite">
+            {{ favorite ? '✓ 已收藏' : '⭐ 收藏' }}
           </view>
           <navigator 
             class="btn btn-primary" 
@@ -108,25 +132,26 @@ import { ref, computed } from 'vue'
 import { onLoad, onShareAppMessage, onShareTimeline } from '@dcloudio/uni-app'
 import { getCatById, type CatDetail } from '@/api/index'
 import { getCatCache } from '@/composables/catCache'
+import { isFavoriteCat, toggleFavoriteCat } from '@/composables/catFavorites'
 
 const catId = ref('')
 const cat = ref<CatDetail | null>(null)
 
 onShareAppMessage(() => {
   return {
-    title: cat.value?.name ? `UNNC 校园猫咪图鉴 - ${cat.value.name}` : 'UNNC 校园猫咪详情',
+    title: cat.value?.Name ? `UNNC 校园猫咪图鉴 - ${cat.value.Name}` : 'UNNC 校园猫咪详情',
     path: `/pages/profiles/self-profile?id=${catId.value}`
   }
 })
 
 onShareTimeline(() => {
   return {
-    title: cat.value?.name ? `UNNC 校园猫咪图鉴 - ${cat.value.name}` : 'UNNC 校园猫咪详情',
+    title: cat.value?.Name ? `UNNC 校园猫咪图鉴 - ${cat.value.Name}` : 'UNNC 校园猫咪详情',
     query: `id=${catId.value}`
   }
 })
 
-const isFollowed = ref(false)
+const favorite = ref(false)
 const loading = ref(true)
 
 const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
@@ -148,8 +173,10 @@ function goBack() {
   uni.navigateBack()
 }
 
-function toggleFollow() {
-  isFollowed.value = !isFollowed.value
+function toggleFavorite() {
+  if (!cat.value) return
+  favorite.value = toggleFavoriteCat(cat.value.id)
+  uni.showToast({ title: favorite.value ? '已收藏' : '已取消收藏', icon: 'none' })
 }
 
 function previewPhoto(current: number) {
@@ -166,6 +193,7 @@ onLoad(async (options: any) => {
     return
   }
   catId.value = id
+  favorite.value = isFavoriteCat(id)
 
   // Immediately render from cache if available (zero wait)
   const cached = getCatCache(id)
@@ -210,6 +238,7 @@ onLoad(async (options: any) => {
 .name-star { display: flex; align-items: center; gap: 8rpx; }
 .cat-name { font-size: 32rpx; font-weight: 700; color: #1C1917; }
 .star-icon { font-size: 28rpx; color: #F0C350; }
+.star-icon.active { color: #F59E0B; }
 .cat-id { font-size: 22rpx; color: #D8BFD8; }
 .info-card { background: white; border-radius: 12rpx; border: 1rpx solid #F4A460; padding: 16rpx; margin-bottom: 16rpx; }
 .info-item { padding: 12rpx 0; border-bottom: 1rpx solid #FFF8DC; display: flex; flex-direction: column; gap: 8rpx; }
@@ -229,4 +258,5 @@ onLoad(async (options: any) => {
 .btn { padding: 16rpx; border-radius: 8rpx; text-align: center; font-weight: 600; font-size: 26rpx; border: none; }
 .btn-primary { background: #F4A460; color: white; border: 2rpx solid #F4A460; }
 .btn-secondary { background: white; color: #B7C9C0; border: 2rpx solid #B7C9C0; }
+.btn-secondary.active { color: #F59E0B; border-color: #F59E0B; }
 </style>

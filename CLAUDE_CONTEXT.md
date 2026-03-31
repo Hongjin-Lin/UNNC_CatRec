@@ -2,6 +2,19 @@
 
 > 本文档记录项目全貌，供 Claude 在新对话中快速上手。
 
+## 2026-04-01 Zoe 更新快照（Merge 必读）
+
+- 今日完整中文日志：`UPDATE_LOG_2026-04-01_ZOE.md`
+- 本次更新范围覆盖：
+  - 前端 Account 页面体系与路由
+  - 猫咪名册页筛选/排序/收藏重构
+  - 添加页字段扩展与交互改造
+  - 猫咪详情页字段扩展
+  - 后端 cats 表结构与接口扩展（筛选/排序/点击计数）
+  - NocoDB -> cats.json -> 本地图库 -> sqlite 的数据流程补强
+  - 用户/论坛标准 schema 与 users router 预留
+- 合并前建议先看该日志再执行逐文件 Review，可显著降低回归遗漏风险。
+
 ---
 
 ## 项目简介
@@ -14,7 +27,9 @@
 - 猫咪名册（网格浏览所有猫）
 - 添加新猫咪（表单 + 照片上传）
 
-前端采用 uni-app（Vue 3），一套代码编译到 H5 和微信小程序。`frontend/`（Next.js）为早期原型，不再维护。
+前端采用 uni-app（Vue 3），一套代码编译到 H5 和微信小程序。
+
+注意：当前活跃前端目录为 `frontend/`（不是 `frontend-uniapp/`）。
 
 ---
 
@@ -36,7 +51,7 @@
 CatRec/
 ├── .gitignore
 ├── README.md
-├── claude_context.md           # 本文件
+├── CLAUDE_CONTEXT.md           # 本文件
 ├── cat_registry.pt             # CatRec.py 原型用的 torch 注册档案
 ├── cats.json                   # 从 NocoDB 导出的原始猫咪数据
 ├── backend/
@@ -56,7 +71,7 @@ CatRec/
 │   │   └── nocodb_service.py   # NocoDB REST API 客户端
 │   └── shared/
 │       └── cats_schema.json    # 猫咪数据结构 JSON Schema
-├── frontend-uniapp/            # uni-app 前端（支持微信小程序和 H5）
+├── frontend/                   # uni-app 前端（支持微信小程序和 H5）
 │   ├── src/
 │   │   ├── api/
 │   │   │   └── index.ts        # 后端请求封装 + TypeScript 类型
@@ -98,11 +113,11 @@ NOCODB_TABLE_ID=你的表ID
 CORS_ORIGINS=http://localhost:3000
 ```
 
-### 前端 `frontend-uniapp/.env.development`
+### 前端 `frontend/.env.development`
 ```env
 VITE_API_URL=http://localhost:8000
 ```
-### 前端 `frontend-uniapp/.env`
+### 前端 `frontend/.env`
 ```env
 VITE_API_URL=https://catrec.thirtysixstudio.net
 ```
@@ -125,22 +140,22 @@ python -m uvicorn main:app --reload --port 8000
 
 ### 前端 — H5 网页端
 ```bash
-cd frontend-uniapp
+cd frontend
 npm install
 npm run dev:h5   #前端会寻找本地localhost:8000寻找服务
-# npm run build:h5 #执行这行代码则前端从 VITE_API_URL=https://catrec.thirtysixstudio.net 寻找服务，前提是在frontend-uniapp文件夹下存在.env 文件指定上述网址
+# npm run build:h5 #执行这行代码则前端从 VITE_API_URL=https://catrec.thirtysixstudio.net 寻找服务，前提是在frontend文件夹下存在.env 文件指定上述网址
 # 访问 http://localhost:5173
 ```
 
 ### 前端 — 微信小程序
 ```bash
-cd frontend-uniapp
+cd frontend
 npm install
 npm run build:mp-weixin
 
   1. 下载并安装 https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html
   2. 打开微信开发者工具，选择 导入项目
-  3. 项目目录选择：D:/projects/CatRec/frontend-uniapp/dist/dev/mp-weixin
+  3. 项目目录选择：D:/projects/CatRec/frontend/dist/dev/mp-weixin
   4. 填入你的 AppID（没有的话选"测试号"）
   5. 点击导入，即可在模拟器里预览
 

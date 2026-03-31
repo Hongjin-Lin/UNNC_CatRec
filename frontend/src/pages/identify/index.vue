@@ -36,6 +36,15 @@
         <text class="no-match-title">{{ t.identify.noMatchTitle }}</text>
         <text class="no-match-sub">{{ t.identify.noMatchSub }}</text>
         <navigator url="/pages/add/index" class="btn-link">{{ t.identify.goAdd }}</navigator>
+        <view class="contact-row">
+          <text class="contact-text">{{ t.identify.wrongInfoPrefix }}</text>
+          <!-- #ifdef H5 || WEB -->
+          <a class="contact-link" :href="correctionFormUrl" target="_blank">{{ t.identify.wrongInfoLink }}</a>
+          <!-- #endif -->
+          <!-- #ifndef H5 || WEB -->
+          <text class="contact-link" @tap="openCorrectionForm">{{ t.identify.wrongInfoLink }}</text>
+          <!-- #endif -->
+        </view>
       </view>
 
       <!-- 匹配结果列表 -->
@@ -64,6 +73,15 @@
         <view class="not-found-row">
           <text class="not-found-text">{{ t.identify.notFound }}</text>
           <navigator url="/pages/add/index" class="btn-link-small">{{ t.identify.notFoundLink }}</navigator>
+        </view>
+        <view class="contact-row bottom-contact-row">
+          <text class="contact-text">{{ t.identify.wrongInfoPrefix }}</text>
+          <!-- #ifdef H5 || WEB -->
+          <a class="contact-link" :href="correctionFormUrl" target="_blank">{{ t.identify.wrongInfoLink }}</a>
+          <!-- #endif -->
+          <!-- #ifndef H5 || WEB -->
+          <text class="contact-link" @tap="openCorrectionForm">{{ t.identify.wrongInfoLink }}</text>
+          <!-- #endif -->
         </view>
       </view>
     </view>
@@ -116,6 +134,7 @@ const filePath = ref<string | null>(null)
 const result = ref<IdentifyResult | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
+const correctionFormUrl = 'https://my.feishu.cn/share/base/form/shrcnhQtjDeBJ5spoo7Cy2Aiowb'
 
 function chooseImage() {
   uni.chooseImage({
@@ -140,7 +159,7 @@ function reset() {
 
 function navigateToCat(cat: CatMatch) {
   if (!cat.id) {
-    console.error('Error: cat ID is missing, cannot navigate to profile.')
+    console.error('Error: cat identifier is missing, cannot navigate to profile.')
     return
   }
   const navUrl = `/pages/profiles/self-profile?catId=${cat.id}&catName=${encodeURIComponent(cat.name)}`
@@ -152,12 +171,21 @@ function navigateToCat(cat: CatMatch) {
   })
 }
 
+function openCorrectionForm() {
+  // #ifndef H5 || WEB
+  uni.setClipboardData({
+    data: correctionFormUrl,
+    success: () => uni.showToast({ title: '链接已复制，请在浏览器打开', icon: 'none' })
+  })
+  // #endif
+}
+
 async function identify() {
   if (!filePath.value) return
   loading.value = true
   error.value = null
   try {
-    result.value = await identifyCat(filePath.value) as IdentifyResult
+    result.value = await identifyCat(filePath.value) as unknown as IdentifyResult
   } catch (e: unknown) {
     error.value = e instanceof Error ? e.message : '识别失败，请重试'
   } finally {
@@ -235,5 +263,25 @@ async function identify() {
 .btn-link-small {
   background: #F97316; color: #fff;
   padding: 12rpx 32rpx; border-radius: 50rpx; font-size: 26rpx;
+}
+.contact-row {
+  margin-top: 14rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+.bottom-contact-row {
+  margin-top: 18rpx;
+}
+.contact-text {
+  font-size: 24rpx;
+  color: #78716C;
+}
+.contact-link {
+  font-size: 24rpx;
+  color: #F97316;
+  text-decoration: underline;
 }
 </style>

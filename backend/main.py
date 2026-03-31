@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from routers import identify, cats, add_cat
+from routers import identify, cats, add_cat, users
 from services.identify_service import _load_model, _load_profiles
 from contextlib import asynccontextmanager
 
@@ -40,6 +40,7 @@ if _library.exists():
 app.include_router(identify.router, prefix="/identify", tags=["identify"])
 app.include_router(cats.router, prefix="/cats", tags=["cats"])
 app.include_router(add_cat.router, prefix="/cats", tags=["cats"])
+app.include_router(users.router)
 
 
 @app.get("/health")

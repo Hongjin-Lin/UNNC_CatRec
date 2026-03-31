@@ -23,6 +23,26 @@
 		{
 			"path": "pages/add/index",
 			"style": { "navigationBarTitleText": "添加猫咪" }
+		},
+		{
+			"path": "pages/account/index",
+			"style": { "navigationBarTitleText": "个人中心" }
+		},
+		{
+			"path": "pages/account/my-cats",
+			"style": { "navigationBarTitleText": "我的猫咪档案" }
+		},
+		{
+			"path": "pages/account/my-moments",
+			"style": { "navigationBarTitleText": "我的喵友圈" }
+		},
+		{
+			"path": "pages/account/bookmarks",
+			"style": { "navigationBarTitleText": "我的收藏" }
+		},
+		{
+			"path": "pages/account/settings",
+			"style": { "navigationBarTitleText": "设置" }
 		}
 	],
 	"globalStyle": {
@@ -50,8 +70,8 @@
 				"text": "🗺️ 地图"
 			},
 			{
-				"pagePath": "pages/add/index",
-				"text": "➕ 添加"
+				"pagePath": "pages/account/index",
+				"text": "👤 我的"
 			}
 		]
 	}
