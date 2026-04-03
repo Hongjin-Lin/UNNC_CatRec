@@ -1,7 +1,8 @@
+from __future__ import annotations
 import sqlite3
 from pathlib import Path
 from fastapi import APIRouter, HTTPException
-from typing import Any
+from typing import Any, Optional
 
 router = APIRouter()
 
@@ -129,10 +130,10 @@ def _category_key(cat: dict[str, Any]) -> str:
 
 def _apply_filters(
     cats: list[dict[str, Any]],
-    gender: str | None,
-    neutered: str | None,
-    status: str | None,
-    category: str | None,
+    gender: Optional[str],
+    neutered: Optional[str],
+    status: Optional[str],
+    category: Optional[str],
 ) -> list[dict[str, Any]]:
     out = cats
 
@@ -164,10 +165,10 @@ def _apply_sort(cats: list[dict[str, Any]], sort: str) -> list[dict[str, Any]]:
 @router.get("/")
 def list_cats(
     sort: str = "default",
-    gender: str | None = None,
-    neutered: str | None = None,
-    status: str | None = None,
-    category: str | None = None,
+    gender: Optional[str] = None,
+    neutered: Optional[str] = None,
+    status: Optional[str] = None,
+    category: Optional[str] = None,
 ):
     conn = _get_db()
     conn.row_factory = sqlite3.Row
