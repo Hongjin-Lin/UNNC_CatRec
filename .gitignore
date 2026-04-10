@@ -20,7 +20,7 @@ __pycache__/
 venv/
 ENV/
 .env
-
+My_Resume_CN.md
 # --- 数据库与指纹库 ---
 *.pkl
 *.db
@@ -53,3 +53,4 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+.claude/
