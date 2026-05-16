@@ -105,9 +105,12 @@ def main():
 
     for cat_dir in cat_dirs:
         name = cat_dir.name
-        image_paths = sorted(p for p in cat_dir.iterdir() if p.suffix.lower() in IMAGE_EXTENSIONS and 'train' in p.stem.lower())
+        image_paths = sorted(
+            p for p in cat_dir.iterdir()
+            if p.suffix.lower() in IMAGE_EXTENSIONS
+        )
         if not image_paths:
-            print(f"[skip] No 'train' images in '{name}/'")
+            print(f"[skip] No images in '{name}/'")
             skipped.append(name)
             continue
 
